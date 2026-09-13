@@ -210,6 +210,7 @@ function openEditModal(memberId) {
             document.getElementById("editMemberName").value = member.name || "";
             document.getElementById("editMemberStatus").value = member.status || "valid";
             document.getElementById("editPdfUrl").value = member.pdf_url || "";
+            editModal.style.display = "flex";
             editModal.classList.remove("hidden");
         })
         .catch((error) => {
@@ -221,6 +222,7 @@ function openEditModal(memberId) {
 
 function closeEditModal() {
     editingMemberId = null;
+    editModal.style.display = "none";
     editModal.classList.add("hidden");
 }
 
