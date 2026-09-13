@@ -4,13 +4,14 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // Members collection
-    //   - Anyone can verify a known member by document ID (member_id).
-    //     "get" only — listing the whole collection is denied so member
-    //     records cannot be enumerated from the public site.
-    //   - Writes are restricted to signed-in admin accounts.
+    //   - Anyone can verify a known member by document ID (member_id) via
+    //     a single-document "get". Public "list" is denied so the whole
+    //     collection can't be enumerated from the public site.
+    //   - Authenticated admins can list the records for the dashboard,
+    //     and only signed-in users can create / update / delete.
     match /members/{memberId} {
       allow get: if true;
-      allow list: if false;
+      allow list: if request.auth != null;
       allow create, update, delete: if request.auth != null;
 
       // Tighter variant — restrict admins to a fixed set of emails.

@@ -45,7 +45,8 @@ only** — listing the collection is denied by the rules.
 `firestore.rules` enforces:
 
 - `get` on any `members/<id>` — public (anyone scanning a QR can verify).
-- `list` on `members` — **denied** (records can't be enumerated).
+- `list` on `members` — **authenticated admins only** (powers the dashboard
+  table); denied for anonymous visitors so records can't be enumerated.
 - `create/update/delete` — signed-in users only (staff accounts).
 - A commented block shows how to tighten writes to a fixed list of admin emails.
 
