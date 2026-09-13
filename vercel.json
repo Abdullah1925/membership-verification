@@ -2,8 +2,9 @@
   "outputDirectory": "public",
   "framework": null,
   "rewrites": [
-    { "source": "/probe", "destination": "/verify.html" },
-    { "source": "/verify", "destination": "/verify.html" },
-    { "source": "/verify/:serial", "destination": "/verify.html?serial=:serial" }
+    { "source": "/probe-rw", "destination": "/verify.html" }
+  ],
+  "redirects": [
+    { "source": "/probe-rd", "destination": "/verify.html" }
   ]
 }
