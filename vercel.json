@@ -1,10 +1,9 @@
 {
   "outputDirectory": "public",
   "framework": "other",
+  "cleanUrls": true,
   "rewrites": [
-    { "source": "/probe-rw", "destination": "/verify.html" }
-  ],
-  "redirects": [
-    { "source": "/probe-rd", "destination": "/verify.html" }
+    { "source": "/verify", "destination": "/verify.html" },
+    { "source": "/verify/:serial", "destination": "/verify.html?serial=:serial" }
   ]
 }

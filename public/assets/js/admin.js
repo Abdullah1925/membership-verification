@@ -45,7 +45,7 @@ onAuthStateChanged(auth, (user) => {
         dashboardSection.classList.remove("hidden");
         loadMembers();
     } else {
-        window.location.replace("index.html");
+        window.location.replace("/");
     }
 });
 

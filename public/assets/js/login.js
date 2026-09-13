@@ -17,7 +17,7 @@ const loginError = document.getElementById("loginError");
 // Already signed in → straight to the dashboard.
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        window.location.replace("admin.html");
+        window.location.replace("admin");
     }
 });
 
@@ -38,7 +38,7 @@ loginForm.addEventListener("submit", async (event) => {
 
     try {
         await signInWithEmailAndPassword(auth, email, password);
-        window.location.replace("admin.html");
+        window.location.replace("admin");
     } catch (error) {
         console.error(error);
         loginError.textContent =
