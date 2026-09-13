@@ -107,6 +107,13 @@
             display: none;
         }
 
+        /* .modal-overlay (flex) would otherwise override `.hidden`
+           — equal specificity, later rule wins. Two-class selector
+           beats both, so `.modal-overlay.hidden` really hides. */
+        .modal-overlay.hidden {
+            display: none;
+        }
+
         .top-section {
             display: grid;
             grid-template-columns: 1fr 2fr;
