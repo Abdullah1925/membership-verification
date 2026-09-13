@@ -10,15 +10,17 @@ public verification page showing their name, membership status, and document
 | Database             | Firebase Firestore           |
 | Authentication       | Firebase Auth (Email/Password) |
 | Document storage     | Google Drive (share links)   |
-| QR generation        | `qr.html` (bulk, in-browser) |
+| QR generation        | `qr.html` (bulk, in-browser — hidden/unlinked for now) |
 
-## Pages
+## Page flow
 
-| Page         | Purpose                                                    |
-| ------------ | ---------------------------------------------------------- |
-| `verify.html`| Public. Opened by scanning a card's QR code (`?id=<member_id>`). |
-| `admin.html` | Protected staff dashboard: add / edit / delete members.    |
-| `qr.html`    | Bulk-generate printable QR codes from a list of member IDs.|
+- **`/`** → admin **login page**. After signing in, staff land on the dashboard.
+- **`/admin.html`** → protected **dashboard** (redirects to `/` when signed out).
+- **`/verify?serial=SN-2026-001234`** → public **verification page** — the only
+  page QR codes point to (a path form `/verify/SN-2026-001234` is also supported
+  via `vercel.json` rewrites).
+- **`/qr.html`** → QR generator. **Hidden** (not linked anywhere) until the
+  dashboard and verification flow are finalized.
 
 ## Data model (Firestore)
 
@@ -73,11 +75,11 @@ firebase use mahrahcouncil
    (e.g. `members_pdfs/` as `1001.pdf`), set the share to *Anyone with the
    link*, and paste the share link into the member's record.
 
-### Generate QR codes
+### Generate QR codes (hidden for now)
 
-Open `qr.html` on the deployed site (staff-only tool), enter member IDs
-(one per line, or import a CSV), and press **Generate**. Each code scans to
-`verify.html?id=<member_id>`. Print or save per-code PNGs for the cards.
+The `qr.html` tool is not linked while the dashboard and verification flow are
+being finalized. Once enabled, enter member serial numbers (one per line, or
+import a CSV) and each QR scans to `/verify?serial=<member_id>`.
 
 ## Local development
 
@@ -95,16 +97,17 @@ Then visit `http://localhost:8080/`.
 ## Project layout
 
 ```text
-public/            static site — what GitHub Pages serves
-  index.html       landing page
-  verify.html      public verification page
-  admin.html       staff dashboard
-  qr.html          QR generator (no Firebase dependency — works offline)
+public/            static site — Vercel serves this
+  index.html       admin login page (root URL)
+  verify.html      public verification page (from QR scans)
+  admin.html       protected staff dashboard
+  qr.html          QR generator (hidden/unlinked for now)
   assets/js/
       firebase-config.js   Firebase init + helpers (Drive URL normalizer)
-      admin.js             admin CRUD + edit modal
+      login.js             login page logic (sign-in → dashboard)
+      admin.js             dashboard CRUD + edit modal
       verify.js            public single-doc lookup + PDF embed
       qr.js                QR generation via qrcode-generator CDN
 firestore.rules    production security rules
-vercel.json        Vercel config (serves public/, auto-deploy on push)
+vercel.json        Vercel config (serves public/ + /verify rewrites)
 ```

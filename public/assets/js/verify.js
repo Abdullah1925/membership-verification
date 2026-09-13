@@ -34,7 +34,7 @@ const pdfFrame      = document.getElementById("pdfFrame");
 // ===============================
 
 const params = new URLSearchParams(window.location.search);
-const memberId = (params.get("id") || params.get("member_id") || "").trim().toUpperCase();
+const memberId = (params.get("serial") || params.get("id") || "").trim().toUpperCase();
 
 async function verifyMember() {
     if (!memberId) {
@@ -82,7 +82,7 @@ function renderMember(member) {
     statusBadge.className = `badge badge-${status}`;
 
     memberName.textContent = member.name || "";
-    memberIdLabel.textContent = `Member ID: ${member.member_id || memberId}`;
+    memberIdLabel.textContent = `Serial: ${member.member_id || memberId}`;
     statusText.textContent = status === "valid" ? "Member in good standing" : "Membership expired";
 
     const created = member.created_at;

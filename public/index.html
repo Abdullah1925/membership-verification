@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Mahra Council — Membership Services</title>
+    <title>Admin Login — Mahra Council</title>
 
     <style>
         * {
@@ -22,69 +22,88 @@
             justify-content: center;
         }
 
-        .container {
+        .login-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px 28px;
+            max-width: 400px;
             width: 100%;
-            max-width: 420px;
-            padding: 24px;
-            text-align: center;
+            margin: 20px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
         }
 
         .brand-logo {
-            width: 76px;
-            height: 76px;
-            border-radius: 18px;
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
             background: #1f2937;
             color: #fff;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
+            font-size: 26px;
             font-weight: bold;
-            margin-bottom: 14px;
+            margin: 0 auto 14px;
         }
 
         h1 {
-            margin: 0;
-            font-size: 22px;
+            text-align: center;
+            font-size: 20px;
+            margin: 0 0 4px;
             color: #1f2937;
         }
 
-        p.tagline {
+        p.sub {
+            text-align: center;
             color: #6b7280;
-            margin: 6px 0 26px;
+            margin: 0 0 22px;
+            font-size: 14px;
         }
 
-        .link-card {
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
             display: block;
-            background: white;
-            border-radius: 12px;
-            padding: 18px 20px;
-            margin-bottom: 12px;
-            text-align: left;
-            text-decoration: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            transition: transform 0.08s ease, box-shadow 0.08s ease;
-            color: inherit;
-        }
-
-        .link-card:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
-        }
-
-        .link-card .title {
+            margin-bottom: 6px;
             font-weight: bold;
-            color: #1f2937;
-            margin-bottom: 3px;
         }
 
-        .link-card .desc {
-            color: #6b7280;
-            font-size: 13px;
+        input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .login-btn:disabled {
+            background: #93c5fd;
+            cursor: not-allowed;
+        }
+
+        .error {
+            color: #dc2626;
+            margin-top: 12px;
+            font-size: 14px;
         }
 
         footer {
-            margin-top: 24px;
+            margin-top: 22px;
+            text-align: center;
             color: #9ca3af;
             font-size: 12px;
         }
@@ -92,28 +111,31 @@
 </head>
 <body>
 
-    <div class="container">
+    <div class="login-card">
         <div class="brand-logo">MC</div>
-        <h1>Mahra Council</h1>
-        <p class="tagline">Membership services</p>
+        <h1>Membership Administration</h1>
+        <p class="sub">Sign in to access the dashboard</p>
 
-        <a class="link-card" href="verify.html">
-            <div class="title">Verify a Membership</div>
-            <div class="desc">Check a member's status using their QR code.</div>
-        </a>
+        <form id="loginForm" autocomplete="on">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" autocomplete="username" required>
+            </div>
 
-        <a class="link-card" href="admin.html">
-            <div class="title">Admin Dashboard</div>
-            <div class="desc">Staff only — manage member records.</div>
-        </a>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" autocomplete="current-password" required>
+            </div>
 
-        <a class="link-card" href="qr.html">
-            <div class="title">QR Code Generator</div>
-            <div class="desc">Bulk-create membership card QR codes.</div>
-        </a>
+            <button type="submit" class="login-btn" id="loginBtn">Sign In</button>
 
-        <footer>Official membership registry</footer>
+            <div class="error" id="loginError"></div>
+        </form>
+
+        <footer>Mahra Council — staff access only</footer>
     </div>
+
+    <script type="module" src="assets/js/login.js"></script>
 
 </body>
 </html>

@@ -1,4 +1,9 @@
 {
   "outputDirectory": "public",
-  "framework": null
+  "framework": null,
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/verify", "destination": "/verify.html" },
+    { "source": "/verify/:serial", "destination": "/verify.html?serial=:serial" }
+  ]
 }

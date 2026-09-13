@@ -17,7 +17,8 @@ const resultCount  = document.getElementById("resultCount");
 const qrGrid       = document.getElementById("qrGrid");
 const printBtn     = document.getElementById("printBtn");
 
-const DEFAULT_BASE = `${window.location.origin}${window.location.pathname.replace(/[^/]*$/, "")}verify.html`;
+// QR codes point at the public verify page: /verify?serial=<MEMBER_ID>
+const DEFAULT_BASE = `${window.location.origin}${window.location.pathname.replace(/[^/]*$/, "")}verify`;
 baseUrlInput.value = DEFAULT_BASE;
 
 
@@ -76,7 +77,7 @@ generateBtn.addEventListener("click", () => {
     const unique = new Set(ids);
 
     unique.forEach((id) => {
-        const url = `${base}?id=${encodeURIComponent(id)}`;
+        const url = `${base}?serial=${encodeURIComponent(id)}`;
         qrGrid.appendChild(makeCell(id, url));
     });
 

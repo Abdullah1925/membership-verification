@@ -2,7 +2,6 @@ import {
     auth,
     db,
     onAuthStateChanged,
-    signInWithEmailAndPassword,
     signOut,
     doc,
     collection,
@@ -22,12 +21,8 @@ import {
 // ELEMENTS
 // ===============================
 
-const loginSection     = document.getElementById("loginSection");
 const dashboardSection = document.getElementById("dashboardSection");
-
-const loginForm   = document.getElementById("loginForm");
-const loginError  = document.getElementById("loginError");
-const logoutBtn   = document.getElementById("logoutBtn");
+const logoutBtn        = document.getElementById("logoutBtn");
 
 const memberForm      = document.getElementById("memberForm");
 const memberMessage   = document.getElementById("memberMessage");
@@ -42,41 +37,22 @@ let editingMemberId = null;
 
 
 // ===============================
-// AUTH STATE
+// AUTH STATE (login page is index.html)
 // ===============================
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        loginSection.classList.add("hidden");
         dashboardSection.classList.remove("hidden");
         loadMembers();
     } else {
-        loginSection.classList.remove("hidden");
-        dashboardSection.classList.add("hidden");
-        closeEditModal();
+        window.location.replace("index.html");
     }
 });
 
 
 // ===============================
-// LOGIN / LOGOUT
+// LOGOUT
 // ===============================
-
-loginForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    loginError.textContent = "";
-    const email    = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-
-    try {
-        await signInWithEmailAndPassword(auth, email, password);
-        loginForm.reset();
-    } catch (error) {
-        console.error(error);
-        loginError.textContent =
-            "Login failed. Please check your email and password.";
-    }
-});
 
 logoutBtn.addEventListener("click", async () => {
     try {
