@@ -6,7 +6,7 @@ public verification page showing their name, membership status, and document
 
 | Component            | Tool / Platform              |
 | -------------------- | ---------------------------- |
-| Frontend hosting     | GitHub Pages (`public/`)     |
+| Frontend hosting     | Vercel (`public/`, see `vercel.json`) |
 | Database             | Firebase Firestore           |
 | Authentication       | Firebase Auth (Email/Password) |
 | Document storage     | Google Drive (share links)   |
@@ -62,9 +62,11 @@ firebase use mahrahcouncil
 2. **Create admin accounts** — Firebase console → Authentication → Users →
    Add user (one per staff member).
 3. **Deploy the rules** — `firebase deploy --only firestore:rules`.
-4. **Publish the site** — on GitHub, push this repo, then repo **Settings →
-   Pages → Source: GitHub Actions**. The included workflow deploys `public/`
-   on every push to `main`.
+4. **Publish the site on Vercel** — push this repo to GitHub, then in
+   [vercel.com](https://vercel.com) → *Add New Project* → import the
+   repository. `vercel.json` already sets the output directory to `public/`;
+   every push to `main` auto-deploys. (Alternatively, run the CLI: `vercel
+   deploy --prod` from the repo root.)
 5. **(Optional) Tighten admin access** — edit `firestore.rules` to use the
    commented email whitelist, then re-deploy.
 6. **Store member PDFs** — save each PDF in a shared Google Drive folder
@@ -104,5 +106,5 @@ public/            static site — what GitHub Pages serves
       verify.js            public single-doc lookup + PDF embed
       qr.js                QR generation via qrcode-generator CDN
 firestore.rules    production security rules
-.github/workflows/pages.yml   GitHub Pages deploy
+vercel.json        Vercel config (serves public/, auto-deploy on push)
 ```
