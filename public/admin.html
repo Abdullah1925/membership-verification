@@ -152,6 +152,47 @@
             color: white;
         }
 
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 100;
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-card h2 {
+            margin-top: 0;
+        }
+
+        .modal-card .form-group input[readonly] {
+            background: #f3f4f6;
+            cursor: not-allowed;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 18px;
+        }
+
+        .cancel-btn {
+            background: #6b7280;
+            color: white;
+        }
+
         @media (max-width: 800px) {
             .top-section {
                 grid-template-columns: 1fr;
@@ -376,6 +417,65 @@
                 </table>
 
             </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- EDIT MODAL -->
+    <div id="editModal" class="modal-overlay hidden">
+
+        <div class="modal-card">
+
+            <h2>Edit Member</h2>
+
+            <form id="editForm">
+
+                <div class="form-group">
+                    <label for="editMemberId">Member ID</label>
+                    <input type="text" id="editMemberId" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="editMemberName">Name</label>
+                    <input type="text" id="editMemberName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editMemberStatus">Status</label>
+                    <select id="editMemberStatus">
+                        <option value="valid">Valid</option>
+                        <option value="expired">Expired</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="editPdfUrl">PDF URL</label>
+                    <input
+                        type="url"
+                        id="editPdfUrl"
+                        placeholder="Google Drive share link"
+                    >
+                </div>
+
+                <div class="modal-actions">
+                    <button
+                        type="button"
+                        id="cancelEditBtn"
+                        class="cancel-btn"
+                    >
+                        Cancel
+                    </button>
+
+                    <button type="submit" class="login-btn">
+                        Save Changes
+                    </button>
+                </div>
+
+                <div id="editMessage"></div>
+
+            </form>
 
         </div>
 

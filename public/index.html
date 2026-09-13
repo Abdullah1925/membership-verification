@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Mahra Council — Membership Services</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .brand-logo {
+            width: 76px;
+            height: 76px;
+            border-radius: 18px;
+            background: #1f2937;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 14px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 22px;
+            color: #1f2937;
+        }
+
+        p.tagline {
+            color: #6b7280;
+            margin: 6px 0 26px;
+        }
+
+        .link-card {
+            display: block;
+            background: white;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+            text-align: left;
+            text-decoration: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: transform 0.08s ease, box-shadow 0.08s ease;
+            color: inherit;
+        }
+
+        .link-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+        }
+
+        .link-card .title {
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 3px;
+        }
+
+        .link-card .desc {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        footer {
+            margin-top: 24px;
+            color: #9ca3af;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="brand-logo">MC</div>
+        <h1>Mahra Council</h1>
+        <p class="tagline">Membership services</p>
+
+        <a class="link-card" href="verify.html">
+            <div class="title">Verify a Membership</div>
+            <div class="desc">Check a member's status using their QR code.</div>
+        </a>
+
+        <a class="link-card" href="admin.html">
+            <div class="title">Admin Dashboard</div>
+            <div class="desc">Staff only — manage member records.</div>
+        </a>
+
+        <a class="link-card" href="qr.html">
+            <div class="title">QR Code Generator</div>
+            <div class="desc">Bulk-create membership card QR codes.</div>
+        </a>
+
+        <footer>Official membership registry</footer>
+    </div>
+
+</body>
+</html>
