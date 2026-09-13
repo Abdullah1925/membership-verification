@@ -1,6 +1,6 @@
 {
   "outputDirectory": "public",
-  "framework": null,
+  "framework": "other",
   "rewrites": [
     { "source": "/probe-rw", "destination": "/verify.html" }
   ],
