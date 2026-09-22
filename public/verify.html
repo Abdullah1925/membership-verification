@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Membership Verification</title>
+    <title>Membership Verification — Mahra Council</title>
 
     <style>
         * {
@@ -13,9 +13,9 @@
 
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            color: #222;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -34,180 +34,185 @@
         /* Brand header */
         .brand-section {
             text-align: center;
-            margin: 28px 0 20px;
+            margin: 24px 0 20px;
         }
 
         .brand-logo {
-            width: 72px;
-            height: 72px;
-            border-radius: 18px;
-            background: #1f2937;
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            background: #0f172a;
             color: #fff;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 30px;
-            font-weight: bold;
+            font-size: 28px;
+            font-weight: 700;
             margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
         }
 
         .brand-section h1 {
             margin: 0;
-            font-size: 20px;
-            color: #1f2937;
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.3px;
         }
 
         .brand-section p {
-            margin: 4px 0 0;
-            color: #6b7280;
+            margin: 6px 0 0;
+            color: #64748b;
             font-size: 14px;
         }
 
-        /* Status / result cards */
+        /* Result cards */
         .card {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 28px 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e2e8f0;
             width: 100%;
             text-align: center;
         }
 
         .card h2 {
             margin-top: 0;
+            font-size: 20px;
+            color: #0f172a;
         }
 
         .badge {
-            display: inline-block;
-            padding: 6px 14px;
-            border-radius: 999px;
-            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            border-radius: 9999px;
+            font-weight: 700;
             font-size: 13px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin: 10px 0 4px;
+            letter-spacing: 0.8px;
+            margin-bottom: 12px;
         }
 
-        .badge-valid {
+        .badge-active {
             background: #dcfce7;
             color: #15803d;
+            border: 1px solid #bbf7d0;
         }
 
         .badge-expired {
             background: #fee2e2;
             color: #b91c1c;
+            border: 1px solid #fecaca;
         }
 
         .member-name {
             font-size: 24px;
-            font-weight: bold;
-            margin: 6px 0 2px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 4px 0 4px;
+            word-break: break-word;
         }
 
-        .member-id {
-            color: #6b7280;
+        .member-serial-subtitle {
+            color: #64748b;
             font-size: 14px;
-            margin-bottom: 18px;
-        }
-
-        .field {
-            text-align: left;
-            padding: 12px 0;
-            border-top: 1px solid #f0f0f0;
-            font-size: 14px;
-        }
-
-        .field-label {
-            color: #6b7280;
-            text-transform: uppercase;
-            font-size: 11px;
-            letter-spacing: 0.6px;
-        }
-
-        .field-value {
-            margin-top: 3px;
-            color: #111827;
+            font-family: Consolas, "Courier New", monospace;
             font-weight: 600;
+            margin-bottom: 22px;
         }
 
-        /* PDF actions */
-        .pdf-actions {
+        /* Information Grid */
+        .info-grid {
             display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 14px 0 4px;
+            flex-direction: column;
+            gap: 12px;
+            text-align: left;
+            margin-top: 18px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 18px;
         }
 
-        button,
-        .btn {
-            border: none;
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 10px 12px;
             border-radius: 8px;
-            padding: 11px 18px;
-            cursor: pointer;
-            font-size: 15px;
+            background: #f8fafc;
+            gap: 12px;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-size: 12px;
+            text-transform: uppercase;
             font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
-        .btn-primary {
-            background: #2563eb;
-            color: white;
+        .info-value {
+            color: #0f172a;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: right;
+            word-break: break-word;
         }
 
-        .btn-secondary {
-            background: #eef2ff;
-            color: #4338ca;
+        .info-value.serial-value {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 15px;
+            color: #0369a1;
         }
 
-        .btn-secondary:hover {
-            background: #e0e7ff;
+        .verified-stamp {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 22px;
+            padding-top: 16px;
+            border-top: 1px dashed #cbd5e1;
+            color: #059669;
+            font-size: 13px;
+            font-weight: 600;
         }
 
-        .btn-primary:disabled {
-            background: #93c5fd;
-            cursor: not-allowed;
-        }
-
-        .pdf-embed {
-            margin-top: 16px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            overflow: hidden;
-            background: #f9fafb;
-        }
-
-        .pdf-embed iframe {
-            width: 100%;
-            height: 420px;
-            border: none;
-            display: block;
+        .verified-stamp svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
         }
 
         .hint {
-            color: #6b7280;
-            font-size: 13px;
-            margin-top: 10px;
+            color: #64748b;
+            font-size: 14px;
+            margin: 8px 0 0;
+            line-height: 1.5;
         }
 
-        /* Not-found / error states */
+        /* Not found / error states */
+        .error-card {
+            border-color: #fecaca;
+        }
+
         .error-card h2 {
             color: #b91c1c;
         }
 
-        .details {
-            margin-top: 26px;
-        }
-
         .footer-note {
-            margin-top: 26px;
-            color: #9ca3af;
+            margin-top: 28px;
+            color: #94a3b8;
             font-size: 12px;
             text-align: center;
+            line-height: 1.6;
         }
 
         .hidden {
-            display: none;
+            display: none !important;
         }
     </style>
 </head>
@@ -215,61 +220,80 @@
 
     <div class="page">
 
-        <!-- Brand -->
+        <!-- Brand Header -->
         <div class="brand-section">
             <div class="brand-logo">MC</div>
-            <h1>Membership Verification</h1>
-            <p>Mahra Council · Official member records</p>
+            <h1>Mahra Council</h1>
+            <p>Official Membership Verification Registry</p>
         </div>
 
+        <!-- Loading Card -->
         <div class="card" id="loadingCard">
             <h2>Checking membership…</h2>
-            <p class="hint">Verifying from the official registry.</p>
+            <p class="hint">Looking up member record in official registry.</p>
         </div>
 
-        <!-- Member result -->
+        <!-- Member Result Card -->
         <div class="card hidden" id="memberCard">
-            <div class="badge" id="statusBadge"></div>
+            <div class="badge" id="statusBadge">Active</div>
             <div class="member-name" id="memberName"></div>
-            <div class="member-id" id="memberIdLabel"></div>
+            <div class="member-serial-subtitle" id="serialSubtitle"></div>
 
-            <div class="field" id="pdfSection">
-                <div class="field-label">Membership Document</div>
-                <div class="pdf-actions">
-                    <button class="btn-primary" id="viewPdfBtn" type="button">View PDF</button>
-                    <a class="btn btn-secondary" id="openDriveBtn" target="_blank" rel="noopener noreferrer" hidden>Open in Drive</a>
+            <div class="info-grid">
+                <div class="info-row">
+                    <span class="info-label">Serial Number</span>
+                    <span class="info-value serial-value" id="serialText"></span>
                 </div>
-                <div class="pdf-embed hidden" id="pdfEmbed">
-                    <iframe id="pdfFrame" title="Membership document"></iframe>
+                <div class="info-row">
+                    <span class="info-label">Full Name</span>
+                    <span class="info-value" id="fullNameText"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Job / Profession</span>
+                    <span class="info-value" id="jobText"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Province</span>
+                    <span class="info-value" id="provinceText"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status</span>
+                    <span class="info-value" id="statusDetailText"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Creation Date</span>
+                    <span class="info-value" id="creationDateText"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Expiration Date</span>
+                    <span class="info-value" id="expirationDateText"></span>
                 </div>
             </div>
 
-            <div class="details">
-                <div class="field">
-                    <div class="field-label">Status</div>
-                    <div class="field-value" id="statusText"></div>
-                </div>
-                <div class="field">
-                    <div class="field-label">Member Since</div>
-                    <div class="field-value" id="createdText"></div>
-                </div>
+            <div class="verified-stamp">
+                <svg viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Verified Official Record
             </div>
         </div>
 
-        <!-- Not found -->
+        <!-- Not Found Card -->
         <div class="card error-card hidden" id="notFoundCard">
-            <h2>Member not found</h2>
-            <p>No active record matches this code.</p>
-            <p class="hint">Please contact the council office if you believe this is a mistake.</p>
+            <h2>Member Not Found</h2>
+            <p class="hint">No record matches this serial code in the council registry.</p>
+            <p class="hint">Please contact the council office if you believe this is an error.</p>
         </div>
 
-        <!-- Error -->
+        <!-- Error Card -->
         <div class="card error-card hidden" id="errorCard">
-            <h2>Unable to verify</h2>
-            <p id="errorMessage">Something went wrong. Please try again.</p>
+            <h2>Unable to Verify</h2>
+            <p class="hint" id="errorMessage">Something went wrong. Please try again.</p>
         </div>
 
-        <div class="footer-note">Secure verification powered by the official council registry.</div>
+        <div class="footer-note">
+            Mahra Council · Secure Verification System
+        </div>
 
     </div>
 

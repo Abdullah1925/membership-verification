@@ -1,8 +1,7 @@
 import {
     db,
     doc,
-    getDoc,
-    normalizeDriveUrl
+    getDoc
 } from "./firebase-config.js";
 
 
@@ -10,42 +9,50 @@ import {
 // ELEMENTS
 // ===============================
 
-const loadingCard   = document.getElementById("loadingCard");
-const memberCard    = document.getElementById("memberCard");
-const notFoundCard  = document.getElementById("notFoundCard");
-const errorCard     = document.getElementById("errorCard");
-const errorMessage  = document.getElementById("errorMessage");
+const loadingCard        = document.getElementById("loadingCard");
+const memberCard         = document.getElementById("memberCard");
+const notFoundCard       = document.getElementById("notFoundCard");
+const errorCard          = document.getElementById("errorCard");
+const errorMessage       = document.getElementById("errorMessage");
 
-const statusBadge     = document.getElementById("statusBadge");
-const statusText      = document.getElementById("statusText");
-const memberName      = document.getElementById("memberName");
-const memberIdLabel   = document.getElementById("memberIdLabel");
-const createdText     = document.getElementById("createdText");
-const pdfSection      = document.getElementById("pdfSection");
+const statusBadge        = document.getElementById("statusBadge");
+const memberName         = document.getElementById("memberName");
+const serialSubtitle     = document.getElementById("serialSubtitle");
 
-const viewPdfBtn    = document.getElementById("viewPdfBtn");
-const openDriveBtn  = document.getElementById("openDriveBtn");
-const pdfEmbed      = document.getElementById("pdfEmbed");
-const pdfFrame      = document.getElementById("pdfFrame");
+const serialText         = document.getElementById("serialText");
+const fullNameText       = document.getElementById("fullNameText");
+const jobText            = document.getElementById("jobText");
+const provinceText       = document.getElementById("provinceText");
+const statusDetailText   = document.getElementById("statusDetailText");
+const creationDateText   = document.getElementById("creationDateText");
+const expirationDateText = document.getElementById("expirationDateText");
 
 
 // ===============================
-// LOOKUP
+// LOOKUP (by Query Param or Path)
 // ===============================
 
 const params = new URLSearchParams(window.location.search);
-const memberId = (params.get("serial") || params.get("id") || "").trim().toUpperCase();
+let memberId = (params.get("serial") || params.get("id") || "").trim().toUpperCase();
+
+// Fallback: extract serial from path like /verify/SN-2026-001234
+if (!memberId) {
+    const pathMatch = window.location.pathname.match(/\/verify\/([^/?#]+)/i);
+    if (pathMatch) {
+        memberId = decodeURIComponent(pathMatch[1]).trim().toUpperCase();
+    }
+}
 
 async function verifyMember() {
     if (!memberId) {
         show(errorCard);
         errorMessage.textContent =
-            "No member code was provided in the link. Please re-scan the QR code.";
+            "No member serial number was provided. Please verify the link or QR code.";
         return;
     }
 
     try {
-        // Single-document lookup by member_id (doc ID). No list/query needed.
+        // Single-document lookup by document ID (Serial Number)
         const memberDoc = await getDoc(doc(db, "members", memberId));
 
         if (!memberDoc.exists()) {
@@ -72,61 +79,72 @@ async function verifyMember() {
 
 
 // ===============================
-// RENDER
+// RENDER MEMBER DETAILS
 // ===============================
 
 function renderMember(member) {
-    const status = member.status === "valid" ? "valid" : "expired";
+    const serial = member.serial_number || member.member_id || memberId;
+    const name = member.name || "—";
+    const job = member.job || "—";
+    const province = member.province || "—";
 
-    statusBadge.textContent = status;
-    statusBadge.className = `badge badge-${status}`;
+    const rawStatus = (member.status || "").trim().toLowerCase();
+    const isActive = rawStatus === "active" || rawStatus === "valid";
 
-    memberName.textContent = member.name || "";
-    memberIdLabel.textContent = `Serial: ${member.member_id || memberId}`;
-    statusText.textContent = status === "valid" ? "Member in good standing" : "Membership expired";
-
-    const created = member.created_at;
-    if (created && created.toDate) {
-        createdText.textContent = created.toDate().toLocaleDateString();
-    } else if (created && typeof created === "string") {
-        createdText.textContent = new Date(created).toLocaleDateString();
+    // 1. Status Badge
+    if (isActive) {
+        statusBadge.textContent = "Active";
+        statusBadge.className = "badge badge-active";
+        statusDetailText.textContent = "Active";
+        statusDetailText.style.color = "#15803d";
     } else {
-        createdText.textContent = "—";
+        statusBadge.textContent = "Expired";
+        statusBadge.className = "badge badge-expired";
+        statusDetailText.textContent = "Expired";
+        statusDetailText.style.color = "#b91c1c";
     }
 
-    setupPdf(member.pdf_url);
+    // 2. Titles
+    memberName.textContent = name;
+    serialSubtitle.textContent = `Serial: ${serial}`;
+
+    // 3. Information Grid
+    serialText.textContent = serial;
+    fullNameText.textContent = name;
+    jobText.textContent = job;
+    provinceText.textContent = province;
+
+    // 4. Dates
+    creationDateText.textContent = formatDate(member.creation_date, member.created_at);
+    expirationDateText.textContent = formatDate(member.expiration_date, null);
+
     show(memberCard);
 }
 
-
-function setupPdf(rawUrl) {
-    const driveUrl = rawUrl ? normalizeDriveUrl(rawUrl) : "";
-    const isDrivePreview = /drive\.google\.com\/file\/d\/([^/?]+)\/preview/.test(driveUrl);
-
-    // PDF section hidden when there's no stored document.
-    pdfSection.hidden = !driveUrl;
-    if (!driveUrl) return;
-
-    // "View PDF" always opens the document in a new tab.
-    viewPdfBtn.onclick = () => {
-        if (isDrivePreview) {
-            window.open(driveUrl.replace(/\/preview$/, "/view"), "_blank", "noopener");
-        } else {
-            window.open(driveUrl, "_blank", "noopener");
+function formatDate(dateValue, timestampFallback) {
+    if (dateValue) {
+        // Standard YYYY-MM-DD string
+        if (typeof dateValue === "string" && dateValue.trim()) {
+            return dateValue.trim();
         }
-    };
-
-    // Drive previews can also be embedded right on the page.
-    if (isDrivePreview) {
-        openDriveBtn.hidden = false;
-        openDriveBtn.href = driveUrl.replace(/\/preview$/, "/view");
-        pdfEmbed.classList.remove("hidden");
-        pdfFrame.src = driveUrl;
-    } else {
-        openDriveBtn.hidden = true;
-        pdfEmbed.classList.add("hidden");
-        pdfFrame.removeAttribute("src");
+        if (dateValue.toDate) {
+            return dateValue.toDate().toISOString().split("T")[0];
+        }
+        if (dateValue instanceof Date) {
+            return dateValue.toISOString().split("T")[0];
+        }
     }
+
+    if (timestampFallback) {
+        if (timestampFallback.toDate) {
+            return timestampFallback.toDate().toISOString().split("T")[0];
+        }
+        if (typeof timestampFallback === "string") {
+            return timestampFallback.split("T")[0];
+        }
+    }
+
+    return "—";
 }
 
 
@@ -141,6 +159,5 @@ function show(card) {
     errorCard.classList.add("hidden");
     card.classList.remove("hidden");
 }
-
 
 verifyMember();
