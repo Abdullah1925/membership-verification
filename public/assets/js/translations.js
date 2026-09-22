@@ -66,9 +66,19 @@ export const t = {
         photoUploadHint: "الحد الأقصى لحجم الصورة 5 ميجابايت (JPG, PNG, WebP)",
         photoChangeHint: "اختر صورة جديدة لتغيير الصورة الحالية",
         noMembersFound: "لا توجد سجلات أعضاء مسجلة حتى الآن.",
+        noSearchResults: "لا توجد نتائج تطابق البحث.",
         serialReadonlyNotice: "الرقم التسلسلي (لا يمكن تعديله بعد الإنشاء)",
         loadingEdit: "جاري تحميل بيانات العضو...",
-        noPhoto: "بدون صورة"
+        noPhoto: "بدون صورة",
+        searchPlaceholder: "بحث بالاسم أو الرقم التسلسلي أو المهنة أو المحافظة…",
+        filterAll: "جميع الحالات",
+        prevPage: "السابق",
+        nextPage: "التالي",
+        pageOf: "صفحة {current} من {total}",
+        totalMembers: "إجمالي: {count}",
+        cropTitle: "اقتصاص الصورة الشخصية",
+        cropConfirm: "اقتصاص وتأكيد",
+        cropCancel: "إلغاء"
     },
 
     // صفحة تسجيل الدخول (index.html)

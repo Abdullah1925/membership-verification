@@ -21,21 +21,23 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 /**
  * التحقق من حجم الصورة (أقل من أو يساوي 5 ميجابايت)
  */
-export function validatePhotoSize(file) {
-    if (!file) return true;
-    return file.size <= MAX_PHOTO_SIZE_BYTES;
+export function validatePhotoSize(fileOrBlob) {
+    if (!fileOrBlob) return true;
+    return fileOrBlob.size <= MAX_PHOTO_SIZE_BYTES;
 }
 
 /**
  * رفع صورة العضو إلى مجلد Members Images في Supabase
- * @param {File} file ملف الصورة المرفوع
+ * يدعم كلاً من File (من input[type=file]) و Blob (من Cropper.js)
+ *
+ * @param {File|Blob} fileOrBlob ملف الصورة أو Blob المقتص
  * @param {string} serialNumber الرقم التسلسلي للعضو
  * @returns {Promise<string>} الرابط المباشر للصورة
  */
-export async function uploadMemberPhoto(file, serialNumber) {
-    if (!file) return "";
+export async function uploadMemberPhoto(fileOrBlob, serialNumber) {
+    if (!fileOrBlob) return "";
 
-    if (!validatePhotoSize(file)) {
+    if (!validatePhotoSize(fileOrBlob)) {
         throw new Error("PHOTO_TOO_LARGE");
     }
 
@@ -43,24 +45,55 @@ export async function uploadMemberPhoto(file, serialNumber) {
         throw new Error("SUPABASE_KEY_MISSING");
     }
 
-    // استخراج امتداد الملف (jpg, png, webp, etc.)
-    const extension = file.name.split(".").pop().toLowerCase() || "jpg";
+    // Derive file extension: prefer File.name, fall back to MIME type map
+    let extension = "";
+    if (fileOrBlob.name) {
+        extension = fileOrBlob.name.split(".").pop().toLowerCase();
+    }
+    if (!extension) {
+        const mimeMap = {
+            "image/jpeg": "jpg",
+            "image/png": "png",
+            "image/webp": "webp",
+            "image/gif": "gif"
+        };
+        extension = mimeMap[fileOrBlob.type] || "jpg";
+    }
+
+    const contentType = fileOrBlob.type || "image/jpeg";
     const cleanSerial = String(serialNumber).trim().replace(/[^a-zA-Z0-9_-]/g, "_");
     const filePath = `members/${cleanSerial}-${Date.now()}.${extension}`;
+
+    console.log(
+        `[Supabase Upload] Starting upload…\n` +
+        `  Bucket : "${BUCKET_NAME}"\n` +
+        `  Path   : "${filePath}"\n` +
+        `  Size   : ${(fileOrBlob.size / 1024).toFixed(1)} KB\n` +
+        `  Type   : ${contentType}\n` +
+        `  Source  : ${fileOrBlob.name ? "File" : "Blob (cropped)"}`
+    );
 
     // رفع الملف مع تفعيل upsert
     const { data, error } = await supabase.storage
         .from(BUCKET_NAME)
-        .upload(filePath, file, {
+        .upload(filePath, fileOrBlob, {
             upsert: true,
             cacheControl: "3600",
-            contentType: file.type || "image/jpeg"
+            contentType: contentType
         });
 
     if (error) {
-        console.error("Supabase Storage upload error:", error);
+        console.error(
+            `[Supabase Upload] ❌ FAILED\n` +
+            `  message    : ${error.message}\n` +
+            `  statusCode : ${error.statusCode || "N/A"}\n` +
+            `  error      : ${error.error || "N/A"}\n` +
+            `  Full error :`, error
+        );
         throw error;
     }
+
+    console.log("[Supabase Upload] ✅ Success:", data?.path || filePath);
 
     // الحصول على الرابط العام المباشر للصورة
     const { data: urlData } = supabase.storage

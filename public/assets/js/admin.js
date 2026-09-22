@@ -62,8 +62,41 @@ const editExpirationDateInput = document.getElementById("editExpirationDate");
 const editMemberPhotoInput   = document.getElementById("editMemberPhoto");
 const editPhotoPreview       = document.getElementById("editPhotoPreview");
 
+// Search / Filter / Pagination elements
+const searchInput    = document.getElementById("searchInput");
+const statusFilter   = document.getElementById("statusFilter");
+const prevPageBtn    = document.getElementById("prevPageBtn");
+const nextPageBtn    = document.getElementById("nextPageBtn");
+const pageIndicator  = document.getElementById("pageIndicator");
+const totalCountSpan = document.getElementById("totalCount");
+
+// Crop modal elements
+const cropModal      = document.getElementById("cropModal");
+const cropImage      = document.getElementById("cropImage");
+const confirmCropBtn = document.getElementById("confirmCropBtn");
+const cancelCropBtn  = document.getElementById("cancelCropBtn");
+
+
+// ===============================
+// STATE
+// ===============================
+
 let editingMemberId = null;
 let currentEditingExistingPhotoUrl = "";
+
+// All loaded members (for client-side search/filter/pagination)
+let allMembers = [];
+let currentPage = 1;
+const PAGE_SIZE = 10;
+
+// Cropped photo blobs from Cropper.js
+let croppedAddPhotoBlob = null;
+let croppedEditPhotoBlob = null;
+
+// Cropper.js instance
+let cropperInstance = null;
+let cropResolve = null;
+let cropReject = null;
 
 
 // ===============================
@@ -94,11 +127,96 @@ memberStatusSelect.addEventListener("change", () => {
     }
 });
 
-// Photo preview & 5MB validation for Add form
-memberPhotoInput.addEventListener("change", () => {
+
+// ===============================
+// CROPPER.JS — Crop Modal Logic
+// ===============================
+
+/**
+ * Opens the crop modal with the given image file and returns a Promise
+ * that resolves with the cropped Blob, or rejects if the user cancels.
+ */
+function openCropModal(file) {
+    return new Promise((resolve, reject) => {
+        cropResolve = resolve;
+        cropReject = reject;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            cropImage.src = e.target.result;
+            cropModal.style.display = "flex";
+            cropModal.classList.remove("hidden");
+
+            // Wait for image to load before initializing Cropper
+            cropImage.onload = () => {
+                if (cropperInstance) {
+                    cropperInstance.destroy();
+                }
+                cropperInstance = new Cropper(cropImage, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    dragMode: "move",
+                    autoCropArea: 0.9,
+                    responsive: true,
+                    background: false,
+                });
+            };
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function closeCropModal() {
+    if (cropperInstance) {
+        cropperInstance.destroy();
+        cropperInstance = null;
+    }
+    cropModal.style.display = "none";
+    cropModal.classList.add("hidden");
+    cropResolve = null;
+    cropReject = null;
+}
+
+confirmCropBtn.addEventListener("click", () => {
+    if (!cropperInstance || !cropResolve) return;
+
+    const canvas = cropperInstance.getCroppedCanvas({
+        width: 400,
+        height: 400,
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: "high",
+    });
+
+    canvas.toBlob((blob) => {
+        if (cropResolve) cropResolve(blob);
+        closeCropModal();
+    }, "image/jpeg", 0.9);
+});
+
+cancelCropBtn.addEventListener("click", () => {
+    if (cropReject) cropReject(new Error("CROP_CANCELLED"));
+    closeCropModal();
+});
+
+// Close crop modal on backdrop click
+cropModal.addEventListener("click", (event) => {
+    if (event.target === cropModal) {
+        if (cropReject) cropReject(new Error("CROP_CANCELLED"));
+        closeCropModal();
+    }
+});
+
+
+// ===============================
+// PHOTO INPUT HANDLERS (with Crop)
+// ===============================
+
+// Add form — photo select → open cropper → store blob
+memberPhotoInput.addEventListener("change", async () => {
     const file = memberPhotoInput.files[0];
     if (!file) {
         addPhotoPreviewContainer.classList.add("hidden");
+        croppedAddPhotoBlob = null;
         return;
     }
 
@@ -106,11 +224,48 @@ memberPhotoInput.addEventListener("change", () => {
         alert(t.alerts.photoSizeExceeded);
         memberPhotoInput.value = "";
         addPhotoPreviewContainer.classList.add("hidden");
+        croppedAddPhotoBlob = null;
         return;
     }
 
-    addPhotoPreview.src = URL.createObjectURL(file);
-    addPhotoPreviewContainer.classList.remove("hidden");
+    try {
+        const croppedBlob = await openCropModal(file);
+        croppedAddPhotoBlob = croppedBlob;
+        addPhotoPreview.src = URL.createObjectURL(croppedBlob);
+        addPhotoPreviewContainer.classList.remove("hidden");
+    } catch {
+        // User cancelled cropping
+        memberPhotoInput.value = "";
+        addPhotoPreviewContainer.classList.add("hidden");
+        croppedAddPhotoBlob = null;
+    }
+});
+
+// Edit form — photo select → open cropper → store blob
+editMemberPhotoInput.addEventListener("change", async () => {
+    const file = editMemberPhotoInput.files[0];
+    if (!file) {
+        croppedEditPhotoBlob = null;
+        return;
+    }
+
+    if (!validatePhotoSize(file)) {
+        alert(t.alerts.photoSizeExceeded);
+        editMemberPhotoInput.value = "";
+        croppedEditPhotoBlob = null;
+        return;
+    }
+
+    try {
+        const croppedBlob = await openCropModal(file);
+        croppedEditPhotoBlob = croppedBlob;
+        editPhotoPreview.src = URL.createObjectURL(croppedBlob);
+        editPhotoPreview.style.display = "block";
+    } catch {
+        // User cancelled cropping
+        editMemberPhotoInput.value = "";
+        croppedEditPhotoBlob = null;
+    }
 });
 
 
@@ -158,7 +313,6 @@ memberForm.addEventListener("submit", async (event) => {
     const creationDate = creationDateInput.value;
     const expirationDate = expirationDateInput.value;
     const terminationDate = status === "terminated" ? terminationDateInput.value : "";
-    const photoFile    = memberPhotoInput.files[0];
 
     if (!serialNumber || !name || !job || !province || !creationDate || !expirationDate) {
         memberMessage.textContent = t.alerts.fillAllFields;
@@ -171,15 +325,19 @@ memberForm.addEventListener("submit", async (event) => {
 
     try {
         let photoUrl = "";
-        if (photoFile) {
+
+        // Use the cropped blob if available, otherwise fall back to the raw file
+        const uploadTarget = croppedAddPhotoBlob || memberPhotoInput.files[0];
+
+        if (uploadTarget) {
             try {
-                photoUrl = await uploadMemberPhoto(photoFile, serialNumber);
+                photoUrl = await uploadMemberPhoto(uploadTarget, serialNumber);
             } catch (uploadErr) {
                 if (uploadErr.message === "SUPABASE_KEY_MISSING") {
                     console.warn("Supabase Anon Key is not configured yet. Saving record without photo.");
                 } else {
                     console.error("Photo upload failed:", uploadErr);
-                    alert(t.alerts.photoUploadFailed);
+                    alert(t.alerts.photoUploadFailed + "\n\n" + (uploadErr.message || ""));
                 }
             }
         }
@@ -208,6 +366,7 @@ memberForm.addEventListener("submit", async (event) => {
         expirationDateInput.value = addOneYear(freshToday);
         terminationDateGroup.classList.add("hidden");
         addPhotoPreviewContainer.classList.add("hidden");
+        croppedAddPhotoBlob = null;
 
         await loadMembers();
     } catch (error) {
@@ -229,6 +388,7 @@ memberForm.addEventListener("submit", async (event) => {
 // ===============================
 
 async function loadMembers() {
+    allMembers = [];
     membersTableBody.innerHTML = "";
 
     let snapshot;
@@ -244,40 +404,125 @@ async function loadMembers() {
         return;
     }
 
-    if (snapshot.empty) {
-        membersTableBody.innerHTML = renderEmptyRow(t.admin.noMembersFound);
-        return;
+    snapshot.forEach((memberDoc) => {
+        allMembers.push({ id: memberDoc.id, data: memberDoc.data() });
+    });
+
+    currentPage = 1;
+    filterAndRender();
+}
+
+
+// ===============================
+// SEARCH / FILTER / PAGINATION
+// ===============================
+
+searchInput.addEventListener("input", () => {
+    currentPage = 1;
+    filterAndRender();
+});
+
+statusFilter.addEventListener("change", () => {
+    currentPage = 1;
+    filterAndRender();
+});
+
+prevPageBtn.addEventListener("click", () => {
+    if (currentPage > 1) {
+        currentPage--;
+        filterAndRender();
+    }
+});
+
+nextPageBtn.addEventListener("click", () => {
+    currentPage++;
+    filterAndRender();
+});
+
+function filterAndRender() {
+    const searchTerm = (searchInput.value || "").trim().toLowerCase();
+    const statusValue = statusFilter.value;
+
+    let filtered = allMembers;
+
+    // 1. Text search (serial, name, job, province)
+    if (searchTerm) {
+        filtered = filtered.filter((m) => {
+            const serial   = (m.data.serial_number || m.data.member_id || m.id || "").toLowerCase();
+            const name     = (m.data.name || "").toLowerCase();
+            const job      = (m.data.job || "").toLowerCase();
+            const province = (m.data.province || "").toLowerCase();
+            return (
+                serial.includes(searchTerm) ||
+                name.includes(searchTerm) ||
+                job.includes(searchTerm) ||
+                province.includes(searchTerm)
+            );
+        });
     }
 
-    snapshot.forEach((memberDoc) => {
-        const member = memberDoc.data();
-        const statusInfo = computeMemberStatus(member);
+    // 2. Status filter
+    if (statusValue) {
+        filtered = filtered.filter((m) => {
+            const statusInfo = computeMemberStatus(m.data);
+            return statusInfo.key === statusValue;
+        });
+    }
 
-        const serial = member.serial_number || member.member_id || memberDoc.id;
-        const creationStr = member.creation_date || (member.created_at?.toDate ? member.created_at.toDate().toISOString().split("T")[0] : "—");
-        const expirationStr = member.expiration_date || "—";
+    // 3. Pagination
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    if (currentPage > totalPages) currentPage = totalPages;
 
-        const photoHtml = member.photo_url
-            ? `<img src="${escapeAttr(member.photo_url)}" alt="${escapeAttr(member.name || '')}" class="table-avatar" onerror="this.outerHTML='<div class=\\'avatar-placeholder\\'>عضو</div>'">`
-            : `<div class="avatar-placeholder">عضو</div>`;
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const pageSlice = filtered.slice(start, start + PAGE_SIZE);
 
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${photoHtml}</td>
-            <td class="serial-cell">${escapeHtml(serial)}</td>
-            <td><strong>${escapeHtml(member.name || "")}</strong></td>
-            <td>${escapeHtml(member.job || "—")}</td>
-            <td>${escapeHtml(member.province || "—")}</td>
-            <td><span class="status-badge ${statusInfo.badgeClass}">${statusInfo.label}</span></td>
-            <td>${escapeHtml(creationStr)}</td>
-            <td>${escapeHtml(expirationStr)}</td>
-            <td class="actions-cell">
-                <button class="edit-btn" data-action="edit" data-id="${escapeAttr(memberDoc.id)}">${t.admin.editBtn}</button>
-                <button class="delete-btn" data-action="delete" data-id="${escapeAttr(memberDoc.id)}">${t.admin.deleteBtn}</button>
-            </td>
-        `;
-        membersTableBody.appendChild(row);
-    });
+    // 4. Render rows
+    membersTableBody.innerHTML = "";
+
+    if (filtered.length === 0) {
+        const msg = searchTerm || statusValue
+            ? t.admin.noSearchResults
+            : t.admin.noMembersFound;
+        membersTableBody.innerHTML = renderEmptyRow(msg);
+    } else {
+        pageSlice.forEach(({ id, data: member }) => {
+            const statusInfo = computeMemberStatus(member);
+
+            const serial = member.serial_number || member.member_id || id;
+            const creationStr = member.creation_date || (member.created_at?.toDate ? member.created_at.toDate().toISOString().split("T")[0] : "—");
+            const expirationStr = member.expiration_date || "—";
+
+            const photoHtml = member.photo_url
+                ? `<img src="${escapeAttr(member.photo_url)}" alt="${escapeAttr(member.name || '')}" class="table-avatar" onerror="this.outerHTML='<div class=\\'avatar-placeholder\\'>عضو</div>'">`
+                : `<div class="avatar-placeholder">عضو</div>`;
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${photoHtml}</td>
+                <td class="serial-cell">${escapeHtml(serial)}</td>
+                <td><strong>${escapeHtml(member.name || "")}</strong></td>
+                <td>${escapeHtml(member.job || "—")}</td>
+                <td>${escapeHtml(member.province || "—")}</td>
+                <td><span class="status-badge ${statusInfo.badgeClass}">${statusInfo.label}</span></td>
+                <td>${escapeHtml(creationStr)}</td>
+                <td>${escapeHtml(expirationStr)}</td>
+                <td class="actions-cell">
+                    <button class="edit-btn" data-action="edit" data-id="${escapeAttr(id)}">${t.admin.editBtn}</button>
+                    <button class="delete-btn" data-action="delete" data-id="${escapeAttr(id)}">${t.admin.deleteBtn}</button>
+                </td>
+            `;
+            membersTableBody.appendChild(row);
+        });
+    }
+
+    // 5. Update pagination controls
+    pageIndicator.textContent = t.admin.pageOf
+        .replace("{current}", currentPage)
+        .replace("{total}", totalPages);
+    totalCountSpan.textContent = t.admin.totalMembers
+        .replace("{count}", filtered.length);
+    prevPageBtn.disabled = currentPage <= 1;
+    nextPageBtn.disabled = currentPage >= totalPages;
 }
 
 function renderEmptyRow(message) {
@@ -323,22 +568,10 @@ editCreationDateInput.addEventListener("change", () => {
     }
 });
 
-editMemberPhotoInput.addEventListener("change", () => {
-    const file = editMemberPhotoInput.files[0];
-    if (!file) return;
-
-    if (!validatePhotoSize(file)) {
-        alert(t.alerts.photoSizeExceeded);
-        editMemberPhotoInput.value = "";
-        return;
-    }
-
-    editPhotoPreview.src = URL.createObjectURL(file);
-});
-
 function openEditModal(memberId) {
     editMessage.textContent = "";
     editMessage.className   = "";
+    croppedEditPhotoBlob = null;
 
     getDoc(doc(db, "members", memberId))
         .then((memberDoc) => {
@@ -391,6 +624,7 @@ function openEditModal(memberId) {
 function closeEditModal() {
     editingMemberId = null;
     currentEditingExistingPhotoUrl = "";
+    croppedEditPhotoBlob = null;
     editModal.style.display = "none";
     editModal.classList.add("hidden");
 }
@@ -415,7 +649,6 @@ editForm.addEventListener("submit", async (event) => {
     const creationDate    = editCreationDateInput.value;
     const expirationDate  = editExpirationDateInput.value;
     const terminationDate = status === "terminated" ? editTerminationDateInput.value : "";
-    const newPhotoFile    = editMemberPhotoInput.files[0];
 
     if (!name || !job || !province) {
         editMessage.textContent = t.alerts.fillAllFields;
@@ -429,15 +662,18 @@ editForm.addEventListener("submit", async (event) => {
     try {
         let photoUrl = currentEditingExistingPhotoUrl;
 
-        if (newPhotoFile) {
+        // Use the cropped blob if available, otherwise fall back to the raw file
+        const uploadTarget = croppedEditPhotoBlob || editMemberPhotoInput.files[0];
+
+        if (uploadTarget) {
             try {
-                photoUrl = await uploadMemberPhoto(newPhotoFile, editingMemberId);
+                photoUrl = await uploadMemberPhoto(uploadTarget, editingMemberId);
             } catch (uploadErr) {
                 if (uploadErr.message === "SUPABASE_KEY_MISSING") {
                     console.warn("Supabase Anon Key is not configured yet. Skipping photo update.");
                 } else {
                     console.error("Photo upload failed:", uploadErr);
-                    alert(t.alerts.photoUploadFailed);
+                    alert(t.alerts.photoUploadFailed + "\n\n" + (uploadErr.message || ""));
                 }
             }
         }

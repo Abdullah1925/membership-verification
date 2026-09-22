@@ -10,6 +10,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 
+    <!-- Cropper.js CSS & JS (integrity removed — placeholder hashes were blocking load) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js" crossorigin="anonymous"></script>
+
     <style>
         * {
             box-sizing: border-box;
@@ -197,6 +201,82 @@
             display: none !important;
         }
 
+        /* ========== SEARCH TOOLBAR ========== */
+        .search-toolbar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1 1 260px;
+            padding: 10px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #fff;
+            color: #1e293b;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .status-filter {
+            flex: 0 0 auto;
+            min-width: 160px;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #fff;
+            color: #1e293b;
+            cursor: pointer;
+        }
+
+        /* ========== PAGINATION BAR ========== */
+        .pagination-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-bar button {
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 8px 16px;
+            font-size: 13px;
+            border-radius: 8px;
+        }
+
+        .pagination-bar button:disabled {
+            background: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .page-indicator {
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .total-count {
+            font-size: 13px;
+            color: #64748b;
+            margin-right: auto;
+        }
+
+        /* ========== TABLE ========== */
         .table-responsive {
             overflow-x: auto;
         }
@@ -267,19 +347,20 @@
             white-space: nowrap;
         }
 
-        .status-active {
+        /* Support both class naming conventions (status-* from admin, badge-* from computeMemberStatus) */
+        .status-active, .badge-active {
             background: #dcfce7;
             color: #15803d;
             border: 1px solid #bbf7d0;
         }
 
-        .status-expired {
+        .status-expired, .badge-expired {
             background: #fee2e2;
             color: #b91c1c;
             border: 1px solid #fecaca;
         }
 
-        .status-terminated {
+        .status-terminated, .badge-terminated {
             background: #f1f5f9;
             color: #475569;
             border: 1px solid #cbd5e1;
@@ -304,7 +385,7 @@
             font-size: 12px;
         }
 
-        /* Edit Modal */
+        /* ========== MODALS (edit + crop) ========== */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -351,6 +432,20 @@
         .cancel-btn {
             background: #e2e8f0;
             color: #475569;
+        }
+
+        /* Crop modal specific */
+        .crop-container {
+            max-height: 420px;
+            overflow: hidden;
+            margin: 16px 0;
+            background: #0f172a;
+            border-radius: 8px;
+        }
+
+        .crop-container img {
+            display: block;
+            max-width: 100%;
         }
 
         @media (max-width: 768px) {
@@ -441,6 +536,17 @@
             <div class="admin-panel">
                 <h2 id="membersListTitle">الأعضاء المسجلين</h2>
 
+                <!-- SEARCH TOOLBAR -->
+                <div class="search-toolbar">
+                    <input type="text" id="searchInput" class="search-input" placeholder="بحث بالاسم أو الرقم التسلسلي أو المهنة أو المحافظة…">
+                    <select id="statusFilter" class="status-filter">
+                        <option value="">جميع الحالات</option>
+                        <option value="active">سارية</option>
+                        <option value="expired">منتهية</option>
+                        <option value="terminated">ملغية</option>
+                    </select>
+                </div>
+
                 <div class="table-responsive">
                     <table class="member-table">
                         <thead>
@@ -458,6 +564,14 @@
                         </thead>
                         <tbody id="membersTableBody"></tbody>
                     </table>
+                </div>
+
+                <!-- PAGINATION BAR -->
+                <div class="pagination-bar">
+                    <span class="total-count" id="totalCount"></span>
+                    <button id="prevPageBtn" disabled>السابق</button>
+                    <span class="page-indicator" id="pageIndicator">صفحة 1 من 1</span>
+                    <button id="nextPageBtn" disabled>التالي</button>
                 </div>
             </div>
 
@@ -531,6 +645,20 @@
 
                 <div id="editMessage"></div>
             </form>
+        </div>
+    </div>
+
+    <!-- CROP MODAL -->
+    <div id="cropModal" class="modal-overlay hidden" style="display:none">
+        <div class="modal-card" style="max-width:600px">
+            <h2>اقتصاص الصورة الشخصية</h2>
+            <div class="crop-container">
+                <img id="cropImage" src="" alt="صورة للاقتصاص">
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="cancelCropBtn" class="cancel-btn">إلغاء</button>
+                <button type="button" id="confirmCropBtn" class="btn-submit">اقتصاص وتأكيد</button>
+            </div>
         </div>
     </div>
 
