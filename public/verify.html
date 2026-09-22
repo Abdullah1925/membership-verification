@@ -1,10 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Membership Verification — Mahra Council</title>
+    <title>التحقق من العضوية — المجلس العام لمحافظة المهرة</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         * {
@@ -13,13 +17,15 @@
 
         body {
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: 'Cairo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             background: #f1f5f9;
             color: #1e293b;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
+            direction: rtl;
+            text-align: right;
         }
 
         .page {
@@ -34,28 +40,28 @@
         /* Brand header */
         .brand-section {
             text-align: center;
-            margin: 24px 0 20px;
+            margin: 20px 0 22px;
         }
 
         .brand-logo {
-            width: 70px;
-            height: 70px;
-            border-radius: 16px;
+            width: 72px;
+            height: 72px;
+            border-radius: 18px;
             background: #0f172a;
             color: #fff;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             font-size: 28px;
-            font-weight: 700;
+            font-weight: 800;
             margin-bottom: 12px;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
         }
 
         .brand-section h1 {
             margin: 0;
             font-size: 22px;
-            font-weight: 700;
+            font-weight: 800;
             color: #0f172a;
             letter-spacing: -0.3px;
         }
@@ -64,13 +70,14 @@
             margin: 6px 0 0;
             color: #64748b;
             font-size: 14px;
+            font-weight: 600;
         }
 
         /* Result cards */
         .card {
             background: #ffffff;
-            border-radius: 16px;
-            padding: 28px 24px;
+            border-radius: 18px;
+            padding: 30px 24px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
             border: 1px solid #e2e8f0;
             width: 100%;
@@ -81,18 +88,50 @@
             margin-top: 0;
             font-size: 20px;
             color: #0f172a;
+            font-weight: 700;
+        }
+
+        /* Member Photo (Centered, Well-sized, Rounded) */
+        .photo-wrapper {
+            margin: 0 auto 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .member-photo {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #ffffff;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12), 0 0 0 2px #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .photo-placeholder {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            border: 4px solid #ffffff;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1), 0 0 0 2px #e2e8f0;
         }
 
         .badge {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 16px;
+            padding: 6px 18px;
             border-radius: 9999px;
-            font-weight: 700;
+            font-weight: 800;
             font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
+            letter-spacing: 0.3px;
             margin-bottom: 12px;
         }
 
@@ -108,19 +147,26 @@
             border: 1px solid #fecaca;
         }
 
+        .badge-terminated {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
         .member-name {
             font-size: 24px;
-            font-weight: 700;
+            font-weight: 800;
             color: #0f172a;
-            margin: 4px 0 4px;
+            margin: 6px 0 2px;
             word-break: break-word;
         }
 
         .member-serial-subtitle {
-            color: #64748b;
+            color: #0369a1;
             font-size: 14px;
             font-family: Consolas, "Courier New", monospace;
-            font-weight: 600;
+            font-weight: 700;
+            direction: ltr;
             margin-bottom: 22px;
         }
 
@@ -128,8 +174,8 @@
         .info-grid {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            text-align: left;
+            gap: 10px;
+            text-align: right;
             margin-top: 18px;
             border-top: 1px solid #e2e8f0;
             padding-top: 18px;
@@ -139,8 +185,8 @@
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            padding: 10px 12px;
-            border-radius: 8px;
+            padding: 11px 14px;
+            border-radius: 10px;
             background: #f8fafc;
             gap: 12px;
         }
@@ -148,24 +194,23 @@
         .info-label {
             color: #64748b;
             font-size: 12px;
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.5px;
+            font-weight: 700;
             white-space: nowrap;
         }
 
         .info-value {
             color: #0f172a;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 14px;
-            text-align: right;
+            text-align: left;
             word-break: break-word;
         }
 
         .info-value.serial-value {
             font-family: Consolas, "Courier New", monospace;
             font-size: 15px;
-            color: #0369a1;
+            color: #0284c7;
+            direction: ltr;
         }
 
         .verified-stamp {
@@ -178,7 +223,7 @@
             border-top: 1px dashed #cbd5e1;
             color: #059669;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .verified-stamp svg {
@@ -191,10 +236,10 @@
             color: #64748b;
             font-size: 14px;
             margin: 8px 0 0;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
-        /* Not found / error states */
+        /* Error cards */
         .error-card {
             border-color: #fecaca;
         }
@@ -204,7 +249,7 @@
         }
 
         .footer-note {
-            margin-top: 28px;
+            margin-top: 26px;
             color: #94a3b8;
             font-size: 12px;
             text-align: center;
@@ -223,50 +268,65 @@
         <!-- Brand Header -->
         <div class="brand-section">
             <div class="brand-logo">MC</div>
-            <h1>Mahra Council</h1>
-            <p>Official Membership Verification Registry</p>
+            <h1 id="brandTitle">المجلس العام لمحافظة المهرة</h1>
+            <p id="brandSubtitle">نظام التحقق الرسمي من بطاقات العضوية</p>
         </div>
 
         <!-- Loading Card -->
         <div class="card" id="loadingCard">
-            <h2>Checking membership…</h2>
-            <p class="hint">Looking up member record in official registry.</p>
+            <h2>جاري التحقق من العضوية…</h2>
+            <p class="hint">يتم البحث في السجل الرسمي المعتمد للمجلس.</p>
         </div>
 
         <!-- Member Result Card -->
         <div class="card hidden" id="memberCard">
-            <div class="badge" id="statusBadge">Active</div>
+
+            <!-- Member Photo on Top in Middle -->
+            <div class="photo-wrapper" id="photoWrapper">
+                <img id="memberPhoto" class="member-photo hidden" src="" alt="الصورة الشخصية للعضو">
+                <div id="photoPlaceholder" class="photo-placeholder">👤</div>
+            </div>
+
+            <!-- Status Badge -->
+            <div class="badge" id="statusBadge">عضوية سارية</div>
+
+            <!-- Member Full Name -->
             <div class="member-name" id="memberName"></div>
             <div class="member-serial-subtitle" id="serialSubtitle"></div>
 
+            <!-- Member Info Grid -->
             <div class="info-grid">
                 <div class="info-row">
-                    <span class="info-label">Serial Number</span>
+                    <span class="info-label">الرقم التسلسلي</span>
                     <span class="info-value serial-value" id="serialText"></span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Full Name</span>
+                    <span class="info-label">الاسم الكامل</span>
                     <span class="info-value" id="fullNameText"></span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Job / Profession</span>
+                    <span class="info-label">المهنة / الوظيفة</span>
                     <span class="info-value" id="jobText"></span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Province</span>
+                    <span class="info-label">المحافظة</span>
                     <span class="info-value" id="provinceText"></span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Status</span>
+                    <span class="info-label">حالة العضوية</span>
                     <span class="info-value" id="statusDetailText"></span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Creation Date</span>
+                    <span class="info-label">تاريخ الإصدار</span>
                     <span class="info-value" id="creationDateText"></span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Expiration Date</span>
+                    <span class="info-label">تاريخ انتهاء الصلاحية</span>
                     <span class="info-value" id="expirationDateText"></span>
+                </div>
+                <div class="info-row hidden" id="terminationDateRow">
+                    <span class="info-label" style="color:#b91c1c;">تاريخ إنهاء العضوية</span>
+                    <span class="info-value" id="terminationDateText" style="color:#b91c1c;"></span>
                 </div>
             </div>
 
@@ -274,25 +334,25 @@
                 <svg viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                 </svg>
-                Verified Official Record
+                سجل رسمي معتمد وموثق
             </div>
         </div>
 
         <!-- Not Found Card -->
         <div class="card error-card hidden" id="notFoundCard">
-            <h2>Member Not Found</h2>
-            <p class="hint">No record matches this serial code in the council registry.</p>
-            <p class="hint">Please contact the council office if you believe this is an error.</p>
+            <h2>عضو غير مسجل</h2>
+            <p class="hint">لم يتم العثور على أي سجل يطابق هذا الرمز في السجل الرسمي للمجلس.</p>
+            <p class="hint">يرجى مراجعة إدارة المجلس في حال وجود أي خطأ.</p>
         </div>
 
         <!-- Error Card -->
         <div class="card error-card hidden" id="errorCard">
-            <h2>Unable to Verify</h2>
-            <p class="hint" id="errorMessage">Something went wrong. Please try again.</p>
+            <h2>تعذر التحقق</h2>
+            <p class="hint" id="errorMessage">حدث خطأ ما أثناء الاتصال بالسجل. يرجى المحاولة لاحقاً.</p>
         </div>
 
         <div class="footer-note">
-            Mahra Council · Secure Verification System
+            المجلس العام لأبناء محافظتي المهرة وسقطرى — نظام التحقق الرقمي المعتمد
         </div>
 
     </div>

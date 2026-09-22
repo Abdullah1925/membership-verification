@@ -4,6 +4,11 @@ import {
     getDoc
 } from "./firebase-config.js";
 
+import {
+    t,
+    computeMemberStatus
+} from "./translations.js";
+
 
 // ===============================
 // ELEMENTS
@@ -14,6 +19,9 @@ const memberCard         = document.getElementById("memberCard");
 const notFoundCard       = document.getElementById("notFoundCard");
 const errorCard          = document.getElementById("errorCard");
 const errorMessage       = document.getElementById("errorMessage");
+
+const memberPhoto        = document.getElementById("memberPhoto");
+const photoPlaceholder   = document.getElementById("photoPlaceholder");
 
 const statusBadge        = document.getElementById("statusBadge");
 const memberName         = document.getElementById("memberName");
@@ -27,15 +35,18 @@ const statusDetailText   = document.getElementById("statusDetailText");
 const creationDateText   = document.getElementById("creationDateText");
 const expirationDateText = document.getElementById("expirationDateText");
 
+const terminationDateRow = document.getElementById("terminationDateRow");
+const terminationDateText = document.getElementById("terminationDateText");
+
 
 // ===============================
-// LOOKUP (by Query Param or Path)
+// LOOKUP (Query Param or Path)
 // ===============================
 
 const params = new URLSearchParams(window.location.search);
 let memberId = (params.get("serial") || params.get("id") || "").trim().toUpperCase();
 
-// Fallback: extract serial from path like /verify/SN-2026-001234
+// Fallback: extract serial from path like /verify/MC-1001
 if (!memberId) {
     const pathMatch = window.location.pathname.match(/\/verify\/([^/?#]+)/i);
     if (pathMatch) {
@@ -46,13 +57,11 @@ if (!memberId) {
 async function verifyMember() {
     if (!memberId) {
         show(errorCard);
-        errorMessage.textContent =
-            "No member serial number was provided. Please verify the link or QR code.";
+        errorMessage.textContent = t.verify.noSerialProvided;
         return;
     }
 
     try {
-        // Single-document lookup by document ID (Serial Number)
         const memberDoc = await getDoc(doc(db, "members", memberId));
 
         if (!memberDoc.exists()) {
@@ -66,14 +75,12 @@ async function verifyMember() {
 
         if (error?.code === "permission-denied") {
             show(errorCard);
-            errorMessage.textContent =
-                "Verification is temporarily unavailable. Please try again later.";
+            errorMessage.textContent = t.verify.permissionDenied;
             return;
         }
 
         show(errorCard);
-        errorMessage.textContent =
-            "Could not reach the registry. Please check your connection and try again.";
+        errorMessage.textContent = t.verify.networkError;
     }
 }
 
@@ -88,62 +95,71 @@ function renderMember(member) {
     const job = member.job || "—";
     const province = member.province || "—";
 
-    const rawStatus = (member.status || "").trim().toLowerCase();
-    const isActive = rawStatus === "active" || rawStatus === "valid";
+    // 1. Photo (Top center of card)
+    if (member.photo_url) {
+        memberPhoto.src = member.photo_url;
+        memberPhoto.classList.remove("hidden");
+        photoPlaceholder.classList.add("hidden");
 
-    // 1. Status Badge
-    if (isActive) {
-        statusBadge.textContent = "Active";
-        statusBadge.className = "badge badge-active";
-        statusDetailText.textContent = "Active";
-        statusDetailText.style.color = "#15803d";
+        memberPhoto.onerror = () => {
+            memberPhoto.classList.add("hidden");
+            photoPlaceholder.classList.remove("hidden");
+        };
     } else {
-        statusBadge.textContent = "Expired";
-        statusBadge.className = "badge badge-expired";
-        statusDetailText.textContent = "Expired";
-        statusDetailText.style.color = "#b91c1c";
+        memberPhoto.classList.add("hidden");
+        photoPlaceholder.classList.remove("hidden");
     }
 
-    // 2. Titles
-    memberName.textContent = name;
-    serialSubtitle.textContent = `Serial: ${serial}`;
+    // 2. Compute Status Dynamically (with auto-expiration)
+    const statusInfo = computeMemberStatus(member);
 
-    // 3. Information Grid
+    statusBadge.textContent = statusInfo.label;
+    statusBadge.className = `badge ${statusInfo.badgeClass}`;
+    statusDetailText.textContent = statusInfo.label;
+
+    if (statusInfo.isActive) {
+        statusDetailText.style.color = "#15803d";
+    } else if (statusInfo.isExpired) {
+        statusDetailText.style.color = "#b91c1c";
+    } else {
+        statusDetailText.style.color = "#334155";
+    }
+
+    // 3. Name & Subtitle
+    memberName.textContent = name;
+    serialSubtitle.textContent = `الرقم التسلسلي: ${serial}`;
+
+    // 4. Data Fields
     serialText.textContent = serial;
     fullNameText.textContent = name;
     jobText.textContent = job;
     provinceText.textContent = province;
 
-    // 4. Dates
+    // 5. Dates
     creationDateText.textContent = formatDate(member.creation_date, member.created_at);
     expirationDateText.textContent = formatDate(member.expiration_date, null);
+
+    // 6. Termination Date (shown if member is terminated)
+    if (statusInfo.isTerminated) {
+        terminationDateRow.classList.remove("hidden");
+        terminationDateText.textContent = formatDate(member.termination_date, null);
+    } else {
+        terminationDateRow.classList.add("hidden");
+    }
 
     show(memberCard);
 }
 
 function formatDate(dateValue, timestampFallback) {
-    if (dateValue) {
-        // Standard YYYY-MM-DD string
-        if (typeof dateValue === "string" && dateValue.trim()) {
-            return dateValue.trim();
-        }
-        if (dateValue.toDate) {
-            return dateValue.toDate().toISOString().split("T")[0];
-        }
-        if (dateValue instanceof Date) {
-            return dateValue.toISOString().split("T")[0];
-        }
+    if (dateValue && typeof dateValue === "string" && dateValue.trim()) {
+        return dateValue.trim();
     }
-
-    if (timestampFallback) {
-        if (timestampFallback.toDate) {
-            return timestampFallback.toDate().toISOString().split("T")[0];
-        }
-        if (typeof timestampFallback === "string") {
-            return timestampFallback.split("T")[0];
-        }
+    if (dateValue?.toDate) {
+        return dateValue.toDate().toISOString().split("T")[0];
     }
-
+    if (timestampFallback?.toDate) {
+        return timestampFallback.toDate().toISOString().split("T")[0];
+    }
     return "—";
 }
 

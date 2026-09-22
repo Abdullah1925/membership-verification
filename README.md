@@ -1,85 +1,72 @@
-# Mahra Council — Membership Verification
+# المجلس العام لأبناء محافظة المهرة — نظام التحقق من بطاقات العضوية
+# Mahra Council — Membership Verification System
 
-A clean, official membership card verification system. When a verification link or card is checked, it opens a public verification page displaying the member's official details. Council staff manage records through a protected administration dashboard.
+نظام ويب رسمي للتحقق من بطاقات عضوية المجلس العام لأبناء محافظة المهرة عبر الروابط الرقمية ورموز الاستجابة (QR). يتضمن لوحة إدارة متكاملة للمشرفين، ونظام تخزين سحابي لصور الأعضاء عبر Supabase Storage، ودعماً كاملاً للغة العربية من اليمين إلى اليسار (RTL).
 
-| Component            | Tool / Platform              |
-| -------------------- | ---------------------------- |
-| Frontend hosting     | Vercel (`public/`, see `vercel.json`) |
-| Database             | Firebase Firestore (`me-central2`) |
-| Authentication       | Firebase Auth (Email/Password) |
+---
 
-## Page Flow
+## المكونات والتقنيات (Architecture)
 
-- **`/`** → Admin **login page**. After signing in, staff land on the dashboard.
-- **`/admin`** → Protected **dashboard** (`admin.html`, redirects to `/` when signed out).
-- **`/verify?serial=MC-1001`** (or **`/verify/MC-1001`**) → Public **verification page** showing verified member details.
+| المكون | المنصة / التقنية | الوصف |
+| :--- | :--- | :--- |
+| **استضافة الواجهة** | Vercel (`public/`) | استضافة ثابتة فائقة السرعة مع Clean URLs |
+| **قاعدة البيانات** | Firebase Firestore (`me-central2`) | تخزين بيانات وسجلات الأعضاء |
+| **مصادقة المشرفين** | Firebase Authentication | تسجيل دخول آمن بالبريد الإلكتروني وكلمة المرور |
+| **تخزين صور الأعضاء** | Supabase Storage (`Members Images`) | تخزين الصور الشخصية حتى 5 ميجابايت لكل ملف |
+| **اللغة والترجمة** | Arabic RTL + `translations.js` | ملف ترجمة موحد يسهل تعديل كافة النصوص |
 
-## Data Model (Firestore)
+---
 
-Collection: `members`, Document ID **=** `serial_number`:
+## تدفق الصفحات (Pages Flow)
 
-```json
-members/<serial_number> {
-  "serial_number":   "MC-1001",
-  "name":            "Salem Ahmed",
-  "job":             "Civil Engineer",
-  "province":        "Al Mahrah",
-  "status":          "active" | "expired",
-  "creation_date":   "2026-09-22",
-  "expiration_date": "2027-09-22",
-  "created_at":      "<server timestamp>"
-}
-```
+1. **الصفحة الرئيسية (`/` أو `index.html`)**: صفحة تسجيل دخول المشرفين باللغة العربية (RTL).
+2. **لوحة الإدارة (`/admin` أو `admin.html`)**: لوحة تحكم محمية للمشرفين لإضافة الأعضاء، تعديل بياناتهم، رفع الصور، وإدارة الحالات.
+3. **صفحة التحقق (`/verify?serial=MC-1001` أو `/verify/MC-1001`)**: صفحة عامة تفتح للمواطنين أو جهات التحقق لعرض بيانات العضو وصورته الشخصية وحالة بطاقته.
 
-Because the document ID is the member serial number, verification is an instant single-document lookup ($O(1)$ read with no complex queries). The public page can **read by known ID only** — listing the collection is denied by Firestore security rules.
+---
 
-## Firestore Security Rules
+## قواعد حالة العضوية (Membership Status Rules)
 
-`firestore.rules` enforces:
+يتم احتساب وتحديث حالة العضوية **تلقائياً وبشكل ديناميكي**:
+1. **تم إنهاء العضوية (`terminated`)**: تظهر البطاقة كملغية، ويتم عرض **تاريخ إنهاء العضوية**.
+2. **منتهية الصلاحية (`expired`)**: تتحول البطاقة تلقائياً إلى منتهية الصلاحية **فور تجاوز تاريخ اليوم لتاريخ الانتهاء المحدد** (`current_date > expiration_date`).
+3. **عضوية سارية (`active`)**: البطاقة سارية ومفعلة طالما لم تنتهِ صلاحيتها أو يتم إنهاؤها.
 
-- `get` on any `members/<id>` — public (anyone verifying a card by serial).
-- `list` on `members` — **authenticated admins only** (powers the dashboard table); denied for anonymous visitors so records cannot be enumerated.
-- `create/update/delete` — signed-in staff only.
+---
 
-## Setup Checklist
+## لوحة التحكم واحتساب مدة الصلاحية تلقائياً
 
-```bash
-git clone <repo-url>
-cd membership-verification
-firebase login
-firebase use mahrahcouncil
-firebase deploy --only firestore:rules
-```
+- عند إضافة عضو جديد، يتم تحديد **تاريخ الإصدار** تلقائياً بتاريخ اليوم.
+- يتم احتساب **تاريخ انتهاء الصلاحية تلقائياً ليكون بعد سنة واحدة بالضبط** من تاريخ الإصدار (مع إمكانية تعديله يدوياً).
+- عند اختيار حالة "تم إنهاء العضوية"، يظهر حقل **تاريخ إنهاء العضوية** تلقائياً.
 
-1. **Enable Email/Password auth** in Firebase Console -> Authentication -> Sign-in method.
-2. **Create admin accounts** in Firebase Console -> Authentication -> Users.
-3. **Deploy rules** using `firebase deploy --only firestore:rules`.
-4. **Publish on Vercel** — push this repo to GitHub; `vercel.json` automatically deploys the `public/` directory with clean URLs.
+---
 
-## Local Development
+## إعداد التخزين السحابي للصور (Supabase Storage)
 
-No build step — plain ES modules over the Firebase CDN. Run the included local dev server (which supports Vercel-style clean URLs like `/admin` and path rewrites):
+1. **مشروع Supabase**: `dzzgcqiovfykjpdwakgq`
+2. **اسم الـ Bucket**: `"Members Images"`
+3. **التحقق من حجم الملف**: النظام يفحص حجم الصورة قبل الرفع ويمنع أي ملف يتجاوز **5 ميجابايت**.
+4. **تفعيل القراءة العامة (Public Bucket)**:
+   - من لوحة تحكم Supabase $\rightarrow$ Storage $\rightarrow$ انقر على الثلاث نقاط بجانب سلة `Members Images` $\rightarrow$ اختر **Edit bucket** $\rightarrow$ قم بتفعيل خيار **"Public bucket"** ثم اضغط Save.
+5. **إضافة مفتاح الـ API للرفع**:
+   - من لوحة Supabase $\rightarrow$ **Project Settings** $\rightarrow$ **API** $\rightarrow$ انسخ مفتاح **`anon` `public`**.
+   - الصق المفتاح في ملف `public/assets/js/supabase-config.js` في المتغير `SUPABASE_ANON_KEY`.
+
+---
+
+## ملف الترجمة والنصوص (`translations.js`)
+
+كافة نصوص الموقع مجمعة في ملف واحد:
+[public/assets/js/translations.js](file:///c:/Users/Abdullah_Basiddiq/Desktop/MC/membership-verification/public/assets/js/translations.js)
+يمكنك فتح هذا الملف وتعديل أي كلمة، اسم حقل، أو رسالة تنبيه بسهولة تامة دون الحاجة للمساس بالأكواد البرمجية.
+
+---
+
+## التشغيل المحلي (Local Development)
 
 ```bash
 python serve.py
-# or: npx serve public
+# أو: npx serve public
 ```
-
-Then visit `http://localhost:8080/`.
-
-## Project Layout
-
-```text
-public/                    static site — Vercel serves this
-  index.html               admin login page (root URL)
-  admin.html               protected staff dashboard
-  verify.html              public verification page
-  assets/js/
-      firebase-config.js   Firebase initialization & exports
-      login.js             login page logic (sign-in -> /admin)
-      admin.js             dashboard CRUD, table rendering & edit modal
-      verify.js            public single-doc lookup & card rendering
-serve.py                   local development server with Vercel routing
-firestore.rules            production security rules
-vercel.json                Vercel config (serves public/ + cleanUrls + rewrites)
-```
+ثم افتح: `http://localhost:8080/`

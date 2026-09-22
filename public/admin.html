@@ -1,10 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Membership Admin — Mahra Council</title>
+    <title>لوحة إدارة العضويات — المجلس العام</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         * {
@@ -13,39 +17,42 @@
 
         body {
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: 'Cairo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             background: #f1f5f9;
             color: #1e293b;
+            direction: rtl;
+            text-align: right;
         }
 
         header {
             background: #0f172a;
             color: white;
-            padding: 18px 28px;
+            padding: 16px 28px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         header h1 {
             margin: 0;
-            font-size: 20px;
+            font-size: 19px;
             font-weight: 700;
         }
 
         button {
             border: none;
-            border-radius: 6px;
-            padding: 9px 15px;
+            border-radius: 8px;
+            padding: 9px 16px;
             cursor: pointer;
             font-size: 14px;
-            font-weight: 600;
-            transition: opacity 0.2s;
+            font-weight: 700;
+            font-family: inherit;
+            transition: all 0.2s;
         }
 
         button:hover {
-            opacity: 0.9;
+            opacity: 0.92;
         }
 
         .logout-btn {
@@ -54,16 +61,16 @@
         }
 
         .container {
-            max-width: 1280px;
-            margin: 30px auto;
+            max-width: 1320px;
+            margin: 28px auto;
             padding: 0 20px 60px;
         }
 
         .admin-panel {
             background: white;
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 24px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
             border: 1px solid #e2e8f0;
         }
 
@@ -71,16 +78,17 @@
             margin-top: 0;
             font-size: 18px;
             color: #0f172a;
-            margin-bottom: 18px;
-            border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 12px;
+            font-weight: 700;
         }
 
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 16px;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
 
         .form-group {
@@ -92,48 +100,93 @@
             margin-bottom: 6px;
             font-weight: 600;
             font-size: 13px;
-            color: #475569;
+            color: #334155;
         }
 
-        input,
+        input[type="text"],
+        input[type="date"],
         select {
             width: 100%;
             padding: 10px 12px;
             border: 1px solid #cbd5e1;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 14px;
             font-family: inherit;
             background: #fff;
             color: #1e293b;
+            transition: border-color 0.2s;
         }
 
-        input:focus,
+        input[type="text"]:focus,
+        input[type="date"]:focus,
         select:focus {
-            outline: 2px solid #2563eb;
+            outline: none;
             border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        input[type="file"] {
+            font-size: 13px;
+            font-family: inherit;
+            padding: 6px 0;
+        }
+
+        .file-hint {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .photo-preview-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .photo-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e2e8f0;
+            background: #f8fafc;
         }
 
         .btn-submit {
             background: #2563eb;
             color: white;
-            padding: 11px 20px;
-            border-radius: 6px;
+            padding: 11px 24px;
+            border-radius: 8px;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
+        }
+
+        .btn-submit:disabled {
+            background: #93c5fd;
+            cursor: not-allowed;
         }
 
         .error {
             color: #dc2626;
             margin-top: 12px;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
+            background: #fef2f2;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #fecaca;
         }
 
         .success {
             color: #16a34a;
             margin-top: 12px;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
+            background: #f0fdf4;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #bbf7d0;
         }
 
         .hidden {
@@ -151,54 +204,85 @@
         .member-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 12px;
-            font-size: 14px;
+            margin-top: 10px;
+            font-size: 13px;
         }
 
         .member-table th,
         .member-table td {
             padding: 12px 14px;
             border-bottom: 1px solid #e2e8f0;
-            text-align: left;
+            text-align: right;
+            vertical-align: middle;
         }
 
         .member-table th {
             background: #f8fafc;
             color: #475569;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .member-table tbody tr:hover {
             background: #f8fafc;
         }
 
+        .table-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #cbd5e1;
+            display: block;
+        }
+
+        .avatar-placeholder {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
         .serial-cell {
             font-family: Consolas, monospace;
-            font-weight: 600;
+            font-weight: 700;
             color: #0284c7;
+            direction: ltr;
+            text-align: right;
         }
 
         .status-badge {
             display: inline-block;
             padding: 4px 10px;
             border-radius: 9999px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
         .status-active {
             background: #dcfce7;
             color: #15803d;
+            border: 1px solid #bbf7d0;
         }
 
         .status-expired {
             background: #fee2e2;
             color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .status-terminated {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
         }
 
         .actions-cell {
@@ -208,22 +292,23 @@
         .edit-btn {
             background: #e0f2fe;
             color: #0369a1;
-            margin-right: 6px;
+            margin-left: 6px;
             padding: 6px 12px;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .delete-btn {
             background: #fee2e2;
             color: #b91c1c;
             padding: 6px 12px;
-            font-size: 13px;
+            font-size: 12px;
         }
 
+        /* Edit Modal */
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(15, 23, 42, 0.65);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -233,9 +318,9 @@
 
         .modal-card {
             background: white;
-            border-radius: 12px;
-            padding: 26px;
-            max-width: 520px;
+            border-radius: 14px;
+            padding: 28px;
+            max-width: 540px;
             width: 100%;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             max-height: 90vh;
@@ -246,8 +331,8 @@
             margin-top: 0;
             font-size: 18px;
             color: #0f172a;
-            border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 12px;
         }
 
         .modal-card input[readonly] {
@@ -260,7 +345,7 @@
             display: flex;
             gap: 10px;
             justify-content: flex-end;
-            margin-top: 20px;
+            margin-top: 22px;
         }
 
         .cancel-btn {
@@ -281,78 +366,94 @@
     <div id="dashboardSection">
 
         <header>
-            <h1>Mahra Council — Membership Administration</h1>
-            <button id="logoutBtn" class="logout-btn">Logout</button>
+            <h1 id="headerTitle">لوحة إدارة بطاقات العضوية — المجلس العام</h1>
+            <button id="logoutBtn" class="logout-btn">تسجيل الخروج</button>
         </header>
 
         <div class="container">
 
             <!-- ADD MEMBER PANEL -->
             <div class="admin-panel" style="margin-bottom: 24px;">
-                <h2>Add New Member</h2>
+                <h2 id="addMemberTitle">إضافة عضو جديد</h2>
 
                 <form id="memberForm">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="memberId">1. Serial Number</label>
-                            <input type="text" id="memberId" placeholder="e.g. MC-1001" required>
+                            <label for="memberId">1. الرقم التسلسلي</label>
+                            <input type="text" id="memberId" placeholder="مثال: MC-1001" required>
                         </div>
 
                         <div class="form-group">
-                            <label for="memberName">2. Full Name</label>
-                            <input type="text" id="memberName" placeholder="e.g. Salem Ahmed" required>
+                            <label for="memberName">2. الاسم الكامل</label>
+                            <input type="text" id="memberName" placeholder="مثال: سالم أحمد المهري" required>
                         </div>
 
                         <div class="form-group">
-                            <label for="memberJob">3. Job / Profession</label>
-                            <input type="text" id="memberJob" placeholder="e.g. Civil Engineer" required>
+                            <label for="memberJob">3. المهنة / الوظيفة</label>
+                            <input type="text" id="memberJob" placeholder="مثال: مهندس مدني" required>
                         </div>
 
                         <div class="form-group">
-                            <label for="memberProvince">4. Province</label>
-                            <input type="text" id="memberProvince" placeholder="e.g. Al Mahrah" required>
+                            <label for="memberProvince">4. المحافظة</label>
+                            <input type="text" id="memberProvince" placeholder="مثال: المهرة" required>
                         </div>
 
                         <div class="form-group">
-                            <label for="memberStatus">5. Status</label>
+                            <label for="memberStatus">5. حالة العضوية</label>
                             <select id="memberStatus" required>
-                                <option value="active">Active</option>
-                                <option value="expired">Expired</option>
+                                <option value="active">عضوية سارية (نشط)</option>
+                                <option value="expired">منتهية الصلاحية</option>
+                                <option value="terminated">تم إنهاء العضوية (ملغية)</option>
                             </select>
                         </div>
 
+                        <div class="form-group hidden" id="terminationDateGroup">
+                            <label for="terminationDate">تاريخ إنهاء العضوية</label>
+                            <input type="date" id="terminationDate">
+                        </div>
+
                         <div class="form-group">
-                            <label for="creationDate">6. Creation Date</label>
+                            <label for="creationDate">6. تاريخ الإصدار</label>
                             <input type="date" id="creationDate" required>
                         </div>
 
                         <div class="form-group">
-                            <label for="expirationDate">6b. Expiration Date</label>
+                            <label for="expirationDate">7. تاريخ انتهاء الصلاحية (سنة واحدة تلقائياً)</label>
                             <input type="date" id="expirationDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="memberPhoto">8. الصورة الشخصية (Supabase Storage)</label>
+                            <input type="file" id="memberPhoto" accept="image/jpeg,image/png,image/webp">
+                            <span class="file-hint">الحد الأقصى لحجم الملف 5 ميجابايت</span>
+                            <div class="photo-preview-container hidden" id="addPhotoPreviewContainer">
+                                <img id="addPhotoPreview" class="photo-preview" src="" alt="معاينة الصورة">
+                            </div>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-submit">Add Member Record</button>
+                    <button type="submit" class="btn-submit" id="addSubmitBtn">حفظ وإضافة العضو</button>
                     <div id="memberMessage"></div>
                 </form>
             </div>
 
             <!-- MEMBERS TABLE PANEL -->
             <div class="admin-panel">
-                <h2>Registered Members</h2>
+                <h2 id="membersListTitle">الأعضاء المسجلين</h2>
 
                 <div class="table-responsive">
                     <table class="member-table">
                         <thead>
                             <tr>
-                                <th>Serial No.</th>
-                                <th>Full Name</th>
-                                <th>Job</th>
-                                <th>Province</th>
-                                <th>Status</th>
-                                <th>Creation Date</th>
-                                <th>Expiration Date</th>
-                                <th>Actions</th>
+                                <th>الصورة</th>
+                                <th>الرقم التسلسلي</th>
+                                <th>الاسم الكامل</th>
+                                <th>المهنة</th>
+                                <th>المحافظة</th>
+                                <th>حالة العضوية</th>
+                                <th>تاريخ الإصدار</th>
+                                <th>تاريخ الانتهاء</th>
+                                <th>الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody id="membersTableBody"></tbody>
@@ -367,50 +468,65 @@
     <!-- EDIT MODAL -->
     <div id="editModal" class="modal-overlay hidden" style="display:none">
         <div class="modal-card">
-            <h2>Edit Member Record</h2>
+            <h2>تعديل بيانات العضو</h2>
 
             <form id="editForm">
                 <div class="form-group" style="margin-bottom: 14px;">
-                    <label for="editMemberId">Serial Number (Cannot be changed)</label>
+                    <label for="editMemberId">الرقم التسلسلي (لا يمكن تعديله)</label>
                     <input type="text" id="editMemberId" readonly>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 14px;">
-                    <label for="editMemberName">Full Name</label>
+                    <label for="editMemberName">الاسم الكامل</label>
                     <input type="text" id="editMemberName" required>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 14px;">
-                    <label for="editMemberJob">Job / Profession</label>
+                    <label for="editMemberJob">المهنة / الوظيفة</label>
                     <input type="text" id="editMemberJob" required>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 14px;">
-                    <label for="editMemberProvince">Province</label>
+                    <label for="editMemberProvince">المحافظة</label>
                     <input type="text" id="editMemberProvince" required>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 14px;">
-                    <label for="editMemberStatus">Status</label>
+                    <label for="editMemberStatus">حالة العضوية</label>
                     <select id="editMemberStatus" required>
-                        <option value="active">Active</option>
-                        <option value="expired">Expired</option>
+                        <option value="active">عضوية سارية (نشط)</option>
+                        <option value="expired">منتهية الصلاحية</option>
+                        <option value="terminated">تم إنهاء العضوية (ملغية)</option>
                     </select>
                 </div>
 
+                <div class="form-group hidden" id="editTerminationDateGroup" style="margin-bottom: 14px;">
+                    <label for="editTerminationDate">تاريخ إنهاء العضوية</label>
+                    <input type="date" id="editTerminationDate">
+                </div>
+
                 <div class="form-group" style="margin-bottom: 14px;">
-                    <label for="editCreationDate">Creation Date</label>
+                    <label for="editCreationDate">تاريخ الإصدار</label>
                     <input type="date" id="editCreationDate" required>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 14px;">
-                    <label for="editExpirationDate">Expiration Date</label>
+                    <label for="editExpirationDate">تاريخ انتهاء الصلاحية</label>
                     <input type="date" id="editExpirationDate" required>
                 </div>
 
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label for="editMemberPhoto">الصورة الشخصية (اختياري لتغيير الصورة)</label>
+                    <input type="file" id="editMemberPhoto" accept="image/jpeg,image/png,image/webp">
+                    <span class="file-hint">الحد الأقصى 5 ميجابايت</span>
+                    <div class="photo-preview-container" style="margin-top: 8px;">
+                        <img id="editPhotoPreview" class="photo-preview" src="" alt="صورة العضو الحالية">
+                    </div>
+                </div>
+
                 <div class="modal-actions">
-                    <button type="button" id="cancelEditBtn" class="cancel-btn">Cancel</button>
-                    <button type="submit" class="btn-submit">Save Changes</button>
+                    <button type="button" id="cancelEditBtn" class="cancel-btn">إلغاء</button>
+                    <button type="submit" class="btn-submit" id="saveEditBtn">حفظ التعديلات</button>
                 </div>
 
                 <div id="editMessage"></div>
