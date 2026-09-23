@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>لوحة إدارة العضويات — المجلس العام</title>
+    <title>لوحة إدارة العضويات - مجلس التنسيق و التوافق محافظة المهرة.</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -461,7 +461,7 @@
     <div id="dashboardSection">
 
         <header>
-            <h1 id="headerTitle">لوحة إدارة بطاقات العضوية — المجلس العام</h1>
+            <h1 id="headerTitle">لوحة إدارة بطاقات العضوية — مجلس التنسيق و التوافق محافظة المهرة.</h1>
             <button id="logoutBtn" class="logout-btn">تسجيل الخروج</button>
         </header>
 
@@ -474,7 +474,7 @@
                 <form id="memberForm">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="memberId">1. الرقم التسلسلي</label>
+                            <label for="memberId">1. رقم العضوية</label>
                             <input type="text" id="memberId" placeholder="مثال: MC-1001" required>
                         </div>
 
@@ -484,12 +484,12 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="memberJob">3. المهنة / الوظيفة</label>
-                            <input type="text" id="memberJob" placeholder="مثال: مهندس مدني" required>
+                            <label for="memberJob">3. الصفة</label>
+                            <input type="text" id="memberJob" placeholder="مثال: مدير المكتب" required>
                         </div>
 
                         <div class="form-group">
-                            <label for="memberProvince">4. المحافظة</label>
+                            <label for="memberProvince">4. المديرية</label>
                             <input type="text" id="memberProvince" placeholder="مثال: المهرة" required>
                         </div>
 
@@ -552,10 +552,10 @@
                         <thead>
                             <tr>
                                 <th>الصورة</th>
-                                <th>الرقم التسلسلي</th>
+                                <th>رقم العضوية</th>
                                 <th>الاسم الكامل</th>
-                                <th>المهنة</th>
-                                <th>المحافظة</th>
+                                <th>الصفة</th>
+                                <th>المديرية</th>
                                 <th>حالة العضوية</th>
                                 <th>تاريخ الإصدار</th>
                                 <th>تاريخ الانتهاء</th>
@@ -586,7 +586,7 @@
 
             <form id="editForm">
                 <div class="form-group" style="margin-bottom: 14px;">
-                    <label for="editMemberId">الرقم التسلسلي (لا يمكن تعديله)</label>
+                    <label for="editMemberId">رقم العضوية (لا يمكن تعديله)</label>
                     <input type="text" id="editMemberId" readonly>
                 </div>
 
@@ -596,12 +596,12 @@
                 </div>
 
                 <div class="form-group" style="margin-bottom: 14px;">
-                    <label for="editMemberJob">المهنة / الوظيفة</label>
+                    <label for="editMemberJob">الصفة</label>
                     <input type="text" id="editMemberJob" required>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 14px;">
-                    <label for="editMemberProvince">المحافظة</label>
+                    <label for="editMemberProvince">المديرية</label>
                     <input type="text" id="editMemberProvince" required>
                 </div>
 
