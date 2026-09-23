@@ -307,6 +307,7 @@ memberForm.addEventListener("submit", async (event) => {
 
     const serialNumber = document.getElementById("memberId").value.trim().toUpperCase();
     const name         = document.getElementById("memberName").value.trim();
+    const nationalId   = document.getElementById("memberNationalId").value.trim();
     const job          = document.getElementById("memberJob").value.trim();
     const province     = document.getElementById("memberProvince").value.trim();
     const status       = memberStatusSelect.value;
@@ -314,7 +315,7 @@ memberForm.addEventListener("submit", async (event) => {
     const expirationDate = expirationDateInput.value;
     const terminationDate = status === "terminated" ? terminationDateInput.value : "";
 
-    if (!serialNumber || !name || !job || !province || !creationDate || !expirationDate) {
+    if (!serialNumber || !name || !nationalId || !job || !province || !creationDate || !expirationDate) {
         memberMessage.textContent = t.alerts.fillAllFields;
         memberMessage.className   = "error";
         return;
@@ -346,6 +347,7 @@ memberForm.addEventListener("submit", async (event) => {
             serial_number: serialNumber,
             member_id: serialNumber,
             name: name,
+            national_id: nationalId,
             job: job,
             province: province,
             status: status,
@@ -586,6 +588,7 @@ function openEditModal(memberId) {
 
             document.getElementById("editMemberId").value = member.serial_number || member.member_id || memberId;
             document.getElementById("editMemberName").value = member.name || "";
+            document.getElementById("editMemberNationalId").value = member.national_id || "";
             document.getElementById("editMemberJob").value = member.job || "";
             document.getElementById("editMemberProvince").value = member.province || "";
 
@@ -643,6 +646,7 @@ editForm.addEventListener("submit", async (event) => {
     editMessage.className   = "";
 
     const name            = document.getElementById("editMemberName").value.trim();
+    const nationalId      = document.getElementById("editMemberNationalId").value.trim();
     const job             = document.getElementById("editMemberJob").value.trim();
     const province        = document.getElementById("editMemberProvince").value.trim();
     const status          = editMemberStatusSelect.value;
@@ -650,7 +654,7 @@ editForm.addEventListener("submit", async (event) => {
     const expirationDate  = editExpirationDateInput.value;
     const terminationDate = status === "terminated" ? editTerminationDateInput.value : "";
 
-    if (!name || !job || !province) {
+    if (!name || !nationalId || !job || !province) {
         editMessage.textContent = t.alerts.fillAllFields;
         editMessage.className   = "error";
         return;
@@ -680,6 +684,7 @@ editForm.addEventListener("submit", async (event) => {
 
         await updateDoc(doc(db, "members", editingMemberId), {
             name: name,
+            national_id: nationalId,
             job: job,
             province: province,
             status: status,

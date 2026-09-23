@@ -29,6 +29,7 @@ const serialSubtitle     = document.getElementById("serialSubtitle");
 
 const serialText         = document.getElementById("serialText");
 const fullNameText       = document.getElementById("fullNameText");
+const nationalIdText     = document.getElementById("nationalIdText");
 const jobText            = document.getElementById("jobText");
 const provinceText       = document.getElementById("provinceText");
 const statusDetailText   = document.getElementById("statusDetailText");
@@ -92,6 +93,7 @@ async function verifyMember() {
 function renderMember(member) {
     const serial = member.serial_number || member.member_id || memberId;
     const name = member.name || "—";
+    const nationalId = member.national_id || "—";
     const job = member.job || "—";
     const province = member.province || "—";
 
@@ -132,6 +134,7 @@ function renderMember(member) {
     // 4. Data Fields
     serialText.textContent = serial;
     fullNameText.textContent = name;
+    nationalIdText.textContent = nationalId;
     jobText.textContent = job;
     provinceText.textContent = province;
 
